@@ -5,6 +5,8 @@
 
 package org.bytefire.ld28.core.screen;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -16,11 +18,10 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.ArrayList;
 import org.bytefire.ld28.core.LD28;
 
-public class GameScreen extends AbstractScreen{
+public class GameScreen extends AbstractScreen {
     private static final int WINDOW_WIDTH = 640;
     private static final int WINDOW_HEIGHT = 480;
     private static final float FRAME_GOAL = 1/60f;
@@ -29,16 +30,24 @@ public class GameScreen extends AbstractScreen{
     private World world;
     private Box2DDebugRenderer debugRender;
 
+
+    private boolean mousePressed;
+    private ArrayList<Vector2> currentChain;
+    private double chainLength;
+    private float chainDelta;
+    private Body chain;
+
     public GameScreen(LD28 ld28){
         super(ld28);
         world = new World(new Vector2(0, -100), true);
         debugRender = new Box2DDebugRenderer();
+        mousePressed = false;
+        currentChain = new ArrayList<Vector2>();
     }
 
     @Override
     public void render(float delta){
         super.render(delta);
-
         debugRender.render(world, cam.combined);
 
         //if (delta < FRAME_GOAL) try {
@@ -46,6 +55,22 @@ public class GameScreen extends AbstractScreen{
         //} catch (InterruptedException ex) {
         //    Logger.getLogger(GameScreen.class.getName()).log(Level.SEVERE, null, ex);
         //}
+        input(delta);
+        physics(delta);
+    }
+
+    public void input(float delta){
+        boolean mousePressedPrev = mousePressed;
+        mousePressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
+        if (mousePressed){
+            if (!mousePressedPrev){
+                currentChain = new ArrayList<Vector2>();
+            }
+            currentChain.add(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+        }
+    }
+
+    public void physics(float delta){
         world.step(FRAME_GOAL, 6, 2);
     }
 
