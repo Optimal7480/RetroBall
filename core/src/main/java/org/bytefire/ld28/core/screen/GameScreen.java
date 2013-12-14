@@ -13,7 +13,9 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.ChainShape;
 import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
@@ -39,7 +41,7 @@ public class GameScreen extends AbstractScreen {
 
     public GameScreen(LD28 ld28){
         super(ld28);
-        world = new World(new Vector2(0, -100), true);
+        world = new World(new Vector2(0, -64), true);
         debugRender = new Box2DDebugRenderer();
         mousePressed = false;
         currentChain = new ArrayList<Vector2>();
@@ -84,7 +86,7 @@ public class GameScreen extends AbstractScreen {
         // We set our body to dynamic, for something like ground which doesn't move we would set it to StaticBody
         bodyDef.type = BodyType.DynamicBody;
         // Set our body's starting position in the world
-        bodyDef.position.set(100, 300);
+        bodyDef.position.set(-300, 200);
 
         // Create our body in the world using our body definition
         Body body = world.createBody(bodyDef);
@@ -96,18 +98,21 @@ public class GameScreen extends AbstractScreen {
         // Create a fixture definition to apply our shape to
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = circle;
-        fixtureDef.density = 0.5f;
-        fixtureDef.friction = 0.4f;
-        fixtureDef.restitution = 0.6f; // Make it bounce a little bit
+        fixtureDef.density = 0.2f;
+        fixtureDef.friction = 1000.0f;
+        fixtureDef.restitution = 0.3f; // Make it bounce a little bit
 
         // Create our fixture and attach it to the body
         Fixture fixture = body.createFixture(fixtureDef);
         // Remember to dispose of any shapes after you're done with them!
         // BodyDef and FixtureDef don't need disposing, but shapes do.
         circle.dispose();
+        body.setLinearVelocity(new Vector2(64, -64));
 
+        
         // Create our body definition
         BodyDef groundBodyDef =new BodyDef();
+        groundBodyDef.type = BodyType.StaticBody;
         // Set its world position
         groundBodyDef.position.set(new Vector2(0, 10));
 
@@ -115,14 +120,22 @@ public class GameScreen extends AbstractScreen {
         Body groundBody = world.createBody(groundBodyDef);
 
         // Create a polygon shape
-        PolygonShape groundBox = new PolygonShape();
-        // Set the polygon shape as a box which is twice the size of our view port and 20 high
-        // (setAsBox takes half-width and half-height as arguments)
-        groundBox.setAsBox(cam.viewportWidth, 10.0f);
+        ChainShape chain = new ChainShape();
+        // Set the chain to be a ramp
+        chain.createChain(new Vector2 [] { 
+            new Vector2(-245, 90),
+            new Vector2(0, -120),
+            new Vector2(10, -125),
+            new Vector2(25, -128),
+            new Vector2(35, -122),
+            new Vector2(40, -115),
+            new Vector2(45,-112)});
+        FixtureDef fixtureDef2 = new FixtureDef();
+        fixtureDef2.restitution = 3.0f;
         // Create a fixture from our polygon shape and add it to our ground body
-        groundBody.createFixture(groundBox, 0.0f);
-        // Clean up after ourselves
-        groundBox.dispose();
+        Fixture fixture2 = groundBody.createFixture(chain, 0.0f);
 
+        // Clean up after ourselves
+        chain.dispose();
     }
 }
