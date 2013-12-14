@@ -5,41 +5,37 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Game;
+import org.bytefire.ld28.core.asset.SpriteHandler;
+import org.bytefire.ld28.core.asset.AudioHandler;
+import org.bytefire.ld28.core.screen.AbstractScreen;
+import org.bytefire.ld28.core.screen.SplashScreen;
+//import org.bytefire.ld28.core.screen.GameScreen;
 
-public class ld28 implements ApplicationListener {
-	Texture texture;
-	SpriteBatch batch;
-	float elapsed;
+public class ld28 extends Game {
+    private final SpriteHandler texture;
+    private final AudioHandler sfx; 
 
-	@Override
-	public void create () {
-		texture = new Texture(Gdx.files.internal("libgdx-logo.png"));
-		batch = new SpriteBatch();
-	}
+    public ld28(){
+        super();
+        texture = new SpriteHandler();
+        sfx = new AudioHandler();
+    }
 
-	@Override
-	public void resize (int width, int height) {
-	}
+    public AbstractScreen getSplashScreen(){ 
+        return new SplashScreen(this);
+    }
 
-	@Override
-	public void render () {
-		elapsed += Gdx.graphics.getDeltaTime();
-		Gdx.gl.glClearColor(0, 0, 0, 0);
-		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		batch.begin();
-		batch.draw(texture, 100+100*(float)Math.cos(elapsed), 100+25*(float)Math.sin(elapsed));
-		batch.end();
-	}
+    public SpriteHandler getSpriteHandler(){
+        return texture;
+    }
 
-	@Override
-	public void pause () {
-	}
+    public AudioHandler getAudioHandler(){
+        return sfx;
+    }
 
-	@Override
-	public void resume () {
-	}
-
-	@Override
-	public void dispose () {
-	}
+    @Override
+    public void create () {
+        setScreen(getSplashScreen());
+    }
 }
