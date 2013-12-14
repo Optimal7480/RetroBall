@@ -4,14 +4,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import org.bytefire.ld28.core.ld28;
+import org.bytefire.ld28.core.LD28;
 
 public abstract class AbstractScreen implements Screen{
 
-    protected final ld28 game;
+    protected final LD28 game;
     protected final Stage stage;
 
-    public AbstractScreen(ld28 game){
+    public AbstractScreen(LD28 game){
         this.game = game;
         this.stage = new Stage();
     }

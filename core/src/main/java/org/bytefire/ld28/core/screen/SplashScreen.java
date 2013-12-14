@@ -5,7 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import org.bytefire.ld28.core.ld28;
+import org.bytefire.ld28.core.LD28;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.*;
 import org.bytefire.ld28.core.asset.Sprite;
@@ -15,7 +15,7 @@ public class SplashScreen extends AbstractScreen {
     private int drawWidth;
     private int drawHeight;
 
-    public SplashScreen(ld28 game) {
+    public SplashScreen(LD28 game) {
         super(game);
     }
 
@@ -37,7 +37,7 @@ public class SplashScreen extends AbstractScreen {
             new Action() {
                 @Override
                 public boolean act(float delta){
-                    //game.setScreen(new IntroScreen(game));
+                    game.setScreen(new GameScreen(game));
                     return true;
                 }
             });
