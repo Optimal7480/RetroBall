@@ -9,16 +9,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.ChainShape;
 import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import java.util.ArrayList;
 import org.bytefire.ld28.core.LD28;
@@ -38,6 +37,7 @@ public class GameScreen extends AbstractScreen {
     private double chainLength;
     private float chainDelta;
     private Body chain;
+    private boolean requiresUpdate;
 
     public GameScreen(LD28 ld28){
         super(ld28);
@@ -45,6 +45,7 @@ public class GameScreen extends AbstractScreen {
         debugRender = new Box2DDebugRenderer();
         mousePressed = false;
         currentChain = new ArrayList<Vector2>();
+        requiresUpdate = false;
     }
 
     @Override
@@ -59,20 +60,34 @@ public class GameScreen extends AbstractScreen {
         //}
         input(delta);
         physics(delta);
+        cam.translate(WINDOW_WIDTH/16, 0);
     }
 
     public void input(float delta){
         boolean mousePressedPrev = mousePressed;
         mousePressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
         if (mousePressed){
-            if (!mousePressedPrev){
+            if (!mousePressedPrev)
                 currentChain = new ArrayList<Vector2>();
+            Vector2 newPoint = new Vector2(Gdx.input.getX() - (WINDOW_WIDTH/2), WINDOW_HEIGHT - Gdx.input.getY() - (WINDOW_HEIGHT/2));
+            if (currentChain.size() > 0) {
+                Vector2 lastPoint = currentChain.get(currentChain.size() -1);
+                if (lastPoint.dst2(newPoint) > 16 * 16) currentChain.add(newPoint);
             }
-            currentChain.add(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+            else currentChain.add(newPoint);
+            if (currentChain.size() >= 2) requiresUpdate = true;
         }
     }
 
     public void physics(float delta){
+        if (requiresUpdate){
+            ChainShape staticChain = new ChainShape();
+            Vector2[] vectorArray = new Vector2[currentChain.size()];
+            staticChain.createChain(currentChain.toArray(vectorArray));
+            chain.createFixture(staticChain, 0.0f);
+            staticChain.dispose();
+            requiresUpdate = false;
+        }
         world.step(FRAME_GOAL, 6, 2);
     }
 
@@ -100,7 +115,7 @@ public class GameScreen extends AbstractScreen {
         fixtureDef.shape = circle;
         fixtureDef.density = 0.2f;
         fixtureDef.friction = 1000.0f;
-        fixtureDef.restitution = 0.3f; // Make it bounce a little bit
+        fixtureDef.restitution = 2f; // Make it bounce a little bit
 
         // Create our fixture and attach it to the body
         Fixture fixture = body.createFixture(fixtureDef);
@@ -109,33 +124,9 @@ public class GameScreen extends AbstractScreen {
         circle.dispose();
         body.setLinearVelocity(new Vector2(64, -64));
 
-        
-        // Create our body definition
-        BodyDef groundBodyDef =new BodyDef();
-        groundBodyDef.type = BodyType.StaticBody;
-        // Set its world position
-        groundBodyDef.position.set(new Vector2(0, 10));
-
-        // Create a body from the defintion and add it to the world
-        Body groundBody = world.createBody(groundBodyDef);
-
-        // Create a polygon shape
-        ChainShape chain = new ChainShape();
-        // Set the chain to be a ramp
-        chain.createChain(new Vector2 [] { 
-            new Vector2(-245, 90),
-            new Vector2(0, -120),
-            new Vector2(10, -125),
-            new Vector2(25, -128),
-            new Vector2(35, -122),
-            new Vector2(40, -115),
-            new Vector2(45,-112)});
-        FixtureDef fixtureDef2 = new FixtureDef();
-        fixtureDef2.restitution = 3.0f;
-        // Create a fixture from our polygon shape and add it to our ground body
-        Fixture fixture2 = groundBody.createFixture(chain, 0.0f);
-
-        // Clean up after ourselves
-        chain.dispose();
+        BodyDef chainBodyDef = new BodyDef();
+        chainBodyDef.type = BodyType.StaticBody;
+        chainBodyDef.position.set(0, 0);
+        chain = world.createBody(chainBodyDef);
     }
 }
