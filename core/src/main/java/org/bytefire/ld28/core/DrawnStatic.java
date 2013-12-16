@@ -94,11 +94,9 @@ public class DrawnStatic extends Actor implements CollisionManager{
         for (int i = 1; i < chain.size(); i++){
             Vector2 start = chain.get(i).cpy();
             Vector2 dir = chain.get(i-1).cpy().sub(start.cpy());
-            Vector2 dirOffset = new Vector2();
             batch.draw(
                 game.getSpriteHandler().getRegion(Sprite.LINE),
-                start.x+(dir.x*8)+8,
-                start.y+(dir.y*8)+8,
+                start.x+(dir.x*8)-8, start.y+(dir.y*8)-8,
                 8, 8, 16f, 8f * dir.len(), 1f, 1f, dir.angle()+90
             );
         }

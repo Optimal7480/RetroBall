@@ -67,16 +67,14 @@ public class GameScreen extends AbstractScreen implements ContactListener{
     public void input(float delta){
         boolean mousePressedPrev = mousePressed;
         mousePressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
+        Vector2 mouse = stage.screenToStageCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
         if (mousePressed){
             if (!mousePressedPrev){
                 if (currentWall != null) staticWalls.add(currentWall);
                 currentWall = new DrawnStatic(game);
             }
             currentWall.addPoint(
-                new Vector2(
-                    Gdx.input.getX() - (WINDOW_WIDTH/4),
-                    WINDOW_HEIGHT - Gdx.input.getY() - (WINDOW_HEIGHT/4)),
-                worldTime);
+                new Vector2(mouse.x, mouse.y), worldTime);
         }
     }
 
