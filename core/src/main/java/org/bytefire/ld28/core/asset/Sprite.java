@@ -6,7 +6,10 @@ import com.badlogic.gdx.files.FileHandle;
 public enum Sprite {
 
     SPLASH(Gdx.files.internal("studio.png"), 0, 0, 0),
-    PLAYER(Gdx.files.internal("spritesheet.png"), 16, 16, 0);
+    PLAYER(Gdx.files.internal("spritesheet.png"), 16, 16, 0),
+    LINE(Gdx.files.internal("spritesheet.png"), 16, 8, 1),
+    LINECAP(Gdx.files.internal("spritesheet.png"), 16, 8, 5);
+
 
     public final FileHandle file;
     public final int width;

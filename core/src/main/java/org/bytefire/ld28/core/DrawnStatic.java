@@ -21,6 +21,7 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import java.util.ArrayList;
+import org.bytefire.ld28.core.asset.Sprite;
 import org.bytefire.ld28.core.screen.AbstractScreen;
 import org.bytefire.ld28.core.screen.GameScreen;
 
@@ -90,7 +91,15 @@ public class DrawnStatic extends Actor implements CollisionManager{
 //        batch.begin();
         Color color = getColor();
         batch.setColor(color.r, color.g, color.b, color.a * parentAlpha);
-        
+        for (int i = 1; i < chain.size(); i++){
+            Vector2 start = chain.get(i);
+            Vector2 dir = chain.get(i-1).sub(start);
+            batch.draw(
+                game.getSpriteHandler().getRegion(Sprite.LINE),
+                start.x, start.y, start.x, start.y, 16f, 8f,
+                1f, dir.len() / 8, (float)(dir.angle()*180/Math.PI)
+            );
+        }
     }
 
     @Override

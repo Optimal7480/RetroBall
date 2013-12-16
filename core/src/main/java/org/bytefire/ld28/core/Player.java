@@ -36,7 +36,7 @@ public class Player extends Actor implements CollisionManager{
         bodyDef.position.set(160, 200);
         body = ((GameScreen) game.getScreen()).getWorld().createBody(bodyDef);
         CircleShape circle = new CircleShape();
-        circle.setRadius(6f);
+        circle.setRadius(4f);
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = circle;
         fixtureDef.density = 0.2f;
@@ -55,7 +55,7 @@ public class Player extends Actor implements CollisionManager{
     public void draw (SpriteBatch batch, float parentAlpha) {
         Color color = getColor();
         batch.setColor(color.r, color.g, color.b, color.a * parentAlpha);
-        batch.draw(tex, getX(),getY());
+        batch.draw(tex, getX() - (tex.getRegionWidth() / 2), getY() - (tex.getRegionHeight() / 2));
     }
 
     @Override

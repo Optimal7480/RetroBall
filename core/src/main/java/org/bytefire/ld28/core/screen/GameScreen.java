@@ -53,7 +53,7 @@ public class GameScreen extends AbstractScreen implements ContactListener{
         cam.position.x = 160;
         cam.position.y = 120;
         cam.update();
-        //debugRender.render(world, cam.combined);
+        debugRender.render(world, cam.combined);
 
         //if (delta < FRAME_GOAL) try {
         //    Thread.sleep((long) ((FRAME_GOAL - delta) * 1000));
@@ -74,8 +74,8 @@ public class GameScreen extends AbstractScreen implements ContactListener{
             }
             currentWall.addPoint(
                 new Vector2(
-                    Gdx.input.getX() - (WINDOW_WIDTH/2),
-                    WINDOW_HEIGHT - Gdx.input.getY() - (WINDOW_HEIGHT/2)),
+                    Gdx.input.getX() - (WINDOW_WIDTH/4),
+                    WINDOW_HEIGHT - Gdx.input.getY() - (WINDOW_HEIGHT/4)),
                 worldTime);
         }
     }
