@@ -85,11 +85,13 @@ public class GameScreen extends AbstractScreen implements ContactListener{
 
     @Override
     public void render(float delta){
-        super.render(delta);
         cam.position.x = player.getX();
         cam.position.y = 120;
         cam.update();
+        super.render(delta);
         gui(delta);
+
+        input(delta);
 
         xdelta += delta;
         for (int i = 0; i < Math.round(player.getPosition().x - playerX); i++){
@@ -98,12 +100,6 @@ public class GameScreen extends AbstractScreen implements ContactListener{
         }
         playerX = player.getPosition().x;
 
-        //if (delta < FRAME_GOAL) try {
-        //    Thread.sleep((long) ((FRAME_GOAL - delta) * 1000));
-        //} catch (InterruptedException ex) {
-        //    Logger.getLogger(GameScreen.class.getName()).log(Level.SEVERE, null, ex);
-        //}
-        input(delta);
         physics(delta);
     }
 

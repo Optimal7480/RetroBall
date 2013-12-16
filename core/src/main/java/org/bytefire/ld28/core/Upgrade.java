@@ -32,7 +32,7 @@ public class Upgrade extends Actor implements CollisionManager{
     public enum Type { LOW_GRAV, LARGE_BALL, BOUNCE, MAGNET, FLY }
     private Type type;
     public Random rand;
-    
+
     public Upgrade(LD28 game, Type type){
         rand = new Random(System.nanoTime());
         this.game = game;
@@ -55,7 +55,7 @@ public class Upgrade extends Actor implements CollisionManager{
         ((AbstractScreen) game.getScreen()).getStage().addActor(this);
         setTouchable(Touchable.enabled);
     }
-    
+
     @Override
     public void draw (SpriteBatch batch, float parentAlpha) {
         Color color = getColor();
@@ -69,20 +69,20 @@ public class Upgrade extends Actor implements CollisionManager{
         setY(body.getPosition().y);
         if (((GameScreen) game.getScreen()).getPlayer().getPosition().dst(getX(), getY()) < 6){
             switch (type){
-                case BOUNCE: ((GameScreen) game.getScreen()).getPlayer().getFix().setRestitution(2.0f);
+                case BOUNCE: ((GameScreen) game.getScreen()).getPlayer().setBounce(Player.MAX_BOUNCE);
                     break;
                 default: break;
             }
         }
     }
-    
+
     @Override
     public boolean remove(){
         super.remove();
         body.destroyFixture(body.getFixtureList().get(0));
         return false;
     }
-    
+
 
     @Override
     public void beginContact(Contact contact) {}
@@ -103,7 +103,7 @@ public class Upgrade extends Actor implements CollisionManager{
     public Type getUpgradeType() {
         return type;
     }
-    
-    
-    
+
+
+
 }
