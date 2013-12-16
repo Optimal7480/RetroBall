@@ -41,7 +41,7 @@ public class Player extends Actor implements CollisionManager{
         fixtureDef.shape = circle;
         fixtureDef.density = 0.2f;
         fixtureDef.friction = 1000.0f;
-        fixtureDef.restitution = 2f;
+        fixtureDef.restitution = 0.6f;
         body.createFixture(fixtureDef);
         circle.dispose();
         body.setLinearVelocity(new Vector2(64, -64));
