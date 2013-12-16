@@ -7,6 +7,7 @@ package org.bytefire.ld28.core;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.Manifold;
@@ -23,9 +24,9 @@ import org.bytefire.ld28.core.screen.GameScreen;
  */
 public class Upgrade extends Actor implements CollisionManager{
     private final LD28 game;
-    private Type type;
-    public enum Type { LOW_GRAV, LARGE_BALL, BOUNCE, MAGNET, FLY }
     private final TextureRegion tex;
+    public enum Type { GRAVITY, GROW, BOUNCE, MAGNET, FLY }
+    private Type type;
     //private final Body body;
     private Random rand;
     
@@ -35,9 +36,9 @@ public class Upgrade extends Actor implements CollisionManager{
         switch(type){
             case BOUNCE: tex = game.getSpriteHandler().getRegion(Sprite.BOUNCE_ON);
                 break;
-            case LOW_GRAV: tex = game.getSpriteHandler().getRegion(Sprite.GRAV_ON);
+            case GRAVITY: tex = game.getSpriteHandler().getRegion(Sprite.GRAV_ON);
                 break;
-            case LARGE_BALL: tex = game.getSpriteHandler().getRegion(Sprite.SIZE_ON);
+            case GROW: tex = game.getSpriteHandler().getRegion(Sprite.SIZE_ON);
                 break;
             case MAGNET: tex = game.getSpriteHandler().getRegion(Sprite.MAGNET_ON);
                 break;
@@ -67,6 +68,10 @@ public class Upgrade extends Actor implements CollisionManager{
         if (((GameScreen) game.getScreen()).getPlayer().getPosition().dst(getX(), getY()) < 6){
             switch (type){
                 case BOUNCE: ((GameScreen) game.getScreen()).getPlayer().setBounce(Player.MAX_BOUNCE);
+                    break;
+                case GROW: ((GameScreen) game.getScreen()).getPlayer().setGrow(Player.MAX_GROW);
+                    break;
+                case GRAVITY: ((GameScreen) game.getScreen()).getPlayer().setGravity(Player.MAX_GRAVITY);
                     break;
                 default: break;
             }

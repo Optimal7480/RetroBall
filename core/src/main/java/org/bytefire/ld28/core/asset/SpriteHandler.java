@@ -20,12 +20,14 @@ public class SpriteHandler {
         FileHandle file = Gdx.files.internal(name);
         ref = file.path();
         texture = new Texture(file);
+        texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
     }
 
     public void load(FileHandle file){
         if (texture != null) texture.dispose();
         ref = file.path();
         texture = new Texture(file);
+        texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
     }
 
     public TextureRegion getRegion(int width, int height, int id){

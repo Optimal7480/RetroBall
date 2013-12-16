@@ -27,17 +27,24 @@ import org.bytefire.ld28.core.screen.GameScreen;
 public class Player extends Actor implements CollisionManager{
 
     public static final float MAX_BOUNCE = 8f;
+    public static final float MAX_GROW = 12f;
+    public static final float MAX_GRAVITY = 16f;
 
     private final Body body;
-    private final Fixture fix;
+    private Fixture fix;
     private final LD28 game;
     private final TextureRegion tex;
 
-    private float bounce;
-    private float magnet;
-    private float fly;
-    private float gravity;
-    private float grow;
+    private float   bounce;
+    private boolean bbounce;
+    private float   magnet;
+    private boolean bmagnet;
+    private float   gravity;
+    private boolean bgravity;
+    private float   grow;
+    private boolean bgrow;
+    private float   fly;
+    private boolean bfly;
 
     public Player(LD28 game) {
         this.game = game;
@@ -61,11 +68,16 @@ public class Player extends Actor implements CollisionManager{
         ((AbstractScreen) game.getScreen()).getStage().addActor(this);
         setTouchable(Touchable.enabled);
 
-        bounce = 0;
-        magnet = 0;
-        fly = 0;
-        gravity = 0;
-        grow = 0;
+        bounce   = 0;
+        bbounce  = false;
+        magnet   = 0;
+        bmagnet  = false;
+        gravity  = 0;
+        bgravity = false;
+        grow     = 0;
+        bgrow    = false;
+        fly      = 0;
+        bfly     = false;
     }
 
     @Override
@@ -79,17 +91,6 @@ public class Player extends Actor implements CollisionManager{
         float time = 2.5f;
         int height = s.getRegion(Sprite.FLY_OFF).getRegionHeight();
         int midpoint = Math.round(time / maxtime * height);
-
-//        TextureRegion top = s.getRegion(Sprite.FLY_OFF);
-//        top.setRegionHeight(height - midpoint);
-//        TextureRegion bot = s.getRegion(Sprite.FLY_ON);
-//        bot.setRegionY(bot.getRegionY() + height - midpoint);
-//        bot.setRegionHeight(midpoint);
-//
-//        Color color = getColor();
-//        batch.setColor(color.r, color.g, color.b, color.a * parentAlpha);
-//        batch.draw(top, getX() - (top.getRegionWidth() / 2), getY() - (height / 2) + midpoint);
-//        batch.draw(bot, getX() - (bot.getRegionWidth() / 2), getY() - (height / 2));
     }
 
     @Override
@@ -99,6 +100,40 @@ public class Player extends Actor implements CollisionManager{
 
         if (bounce > 0) fix.setRestitution(2.0f);
         else fix.setRestitution(0.1f);
+        if (!bgrow && grow > 0) {
+            CircleShape circle = new CircleShape();
+            circle.setRadius(16f);
+            FixtureDef fixtureDef = new FixtureDef();
+            fixtureDef.shape = circle;
+            fixtureDef.density = 0.5f;
+            fixtureDef.friction = 1.0f;
+            fixtureDef.restitution = 0.1f;
+            body.destroyFixture(fix);
+            fix = body.createFixture(fixtureDef);
+            circle.dispose();
+            bgrow = true;
+        }
+        else if (bgrow && grow == 0) {
+            CircleShape circle = new CircleShape();
+            circle.setRadius(5f);
+            FixtureDef fixtureDef = new FixtureDef();
+            fixtureDef.shape = circle;
+            fixtureDef.density = 0.5f;
+            fixtureDef.friction = 1.0f;
+            fixtureDef.restitution = 0.1f;
+            body.destroyFixture(fix);
+            fix = body.createFixture(fixtureDef);
+            circle.dispose();
+            bgrow = false;
+        }
+        if (!bgravity && gravity > 0){
+            body.getWorld().setGravity(new Vector2(0f, -24f));
+            bgravity = true;
+        }
+        else if (bgravity && gravity == 0){
+            body.getWorld().setGravity(new Vector2(0f, -64f));
+            bgravity = true;
+        }
 
         if (bounce - delta > 0) bounce -= delta;
         else bounce = 0;
