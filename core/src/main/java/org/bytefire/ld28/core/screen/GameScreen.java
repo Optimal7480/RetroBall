@@ -94,7 +94,7 @@ public class GameScreen extends AbstractScreen implements ContactListener{
         //stage.setViewport(WINDOW_WIDTH, WINDOW_HEIGHT, true);
         cam = new OrthographicCamera(WINDOW_WIDTH, WINDOW_HEIGHT);
         stage.setCamera(cam);
-        //cam.zoom = 0.5F;
+        cam.zoom = 0.50F;
         cam.update();
     }
 
