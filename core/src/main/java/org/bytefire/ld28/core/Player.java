@@ -37,9 +37,9 @@ public class Player extends Actor implements CollisionManager{
         circle.setRadius(5f);
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = circle;
-        fixtureDef.density = 0.2f;
-        fixtureDef.friction = 1000.0f;
-        fixtureDef.restitution = 0.6f;
+        fixtureDef.density = 0.5f;
+        fixtureDef.friction = 1.0f;
+        fixtureDef.restitution = 0.1f;
         body.createFixture(fixtureDef);
         circle.dispose();
         body.setLinearVelocity(new Vector2(64, -64));
@@ -72,6 +72,7 @@ public class Player extends Actor implements CollisionManager{
 
     @Override
     public void preSolve(Contact contact, Manifold oldManifold) {
+        System.out.println("presolve");
     }
 
     @Override

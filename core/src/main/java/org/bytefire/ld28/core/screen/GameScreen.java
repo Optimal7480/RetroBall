@@ -9,8 +9,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
@@ -23,14 +26,15 @@ import org.bytefire.ld28.core.LD28;
 import org.bytefire.ld28.core.Player;
 
 public class GameScreen extends AbstractScreen implements ContactListener{
-    private static final int WINDOW_WIDTH = 640;
-    private static final int WINDOW_HEIGHT = 480;
+    private static final int WINDOW_WIDTH = 800;
+    private static final int WINDOW_HEIGHT = 600;
     private static final float FRAME_GOAL = 1/60f;
     private static final int BOX_SCALE = 8;
     public static final float PLATFORM_CAP = 640;
 
     private static final boolean DEBUG_RENDER = false;
 
+    private ShapeRenderer gui;
     private OrthographicCamera cam;
     private World world;
     private Box2DDebugRenderer debugRender;
@@ -45,8 +49,10 @@ public class GameScreen extends AbstractScreen implements ContactListener{
 
     public GameScreen(LD28 main){
         super(main);
+        gui = new ShapeRenderer();
         world = new World(new Vector2(0, -64), true);
         debugRender = new Box2DDebugRenderer();
+        world.setContactListener(this);
         mousePressed = false;
         staticWalls = new ArrayList<DrawnStatic>();
         currentWall = null;
@@ -61,8 +67,8 @@ public class GameScreen extends AbstractScreen implements ContactListener{
         cam.position.x = player.getX();
         cam.position.y = 120;
         cam.update();
-        System.out.println("totalPlatformLength = " + totalPlatformLength);
-        if (DEBUG_RENDER) debugRender.render(world, cam.combined);
+        gui(delta);
+        debugRender.render(world, cam.combined);
 
         //if (delta < FRAME_GOAL) try {
         //    Thread.sleep((long) ((FRAME_GOAL - delta) * 1000));
@@ -109,10 +115,21 @@ public class GameScreen extends AbstractScreen implements ContactListener{
         cam.zoom = 0.50F;
         cam.update();
     }
+    
+    public void gui(float delta){
+        gui.begin(ShapeRenderer.ShapeType.Line);
+        gui.setColor(Color.WHITE);
+        gui.rect(50, 560, 700, 20);
+        gui.end();
+        gui.begin(ShapeRenderer.ShapeType.Filled);
+        gui.setColor(Color.WHITE);
+        gui.rect(50, 560, 350, 20);
+        gui.end();
+    }
 
     @Override
     public void beginContact(Contact contact) {
-        ((CollisionManager)contact.getFixtureA().getBody().getUserData()).beginContact(contact);
+        ((CollisionManager) contact.getFixtureA().getBody().getUserData()).beginContact(contact);
     }
 
     @Override
