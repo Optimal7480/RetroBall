@@ -66,6 +66,10 @@ public class Player extends Actor implements CollisionManager{
 
     @Override
     public void beginContact(Contact contact) {
+        Class type = ((CollisionManager) contact.getFixtureA().getUserData()).getType();
+        if (type == DrawnStatic.class){
+            ((DrawnStatic) contact.getFixtureA().getUserData())
+        }
     }
 
     @Override
