@@ -26,7 +26,7 @@ import org.bytefire.ld28.core.asset.Sprite;
 import org.bytefire.ld28.core.screen.AbstractScreen;
 import org.bytefire.ld28.core.screen.GameScreen;
 
-public class DrawnStatic extends Actor implements CollisionManager{
+public class Platform extends Actor implements CollisionManager{
     private static final long FADE_TIME = 4;
 
     private final ArrayList<Vector2> chain;
@@ -38,7 +38,7 @@ public class DrawnStatic extends Actor implements CollisionManager{
     private ShapeRenderer shape;
     private LD28 game;
 
-    public DrawnStatic(LD28 game){
+    public Platform(LD28 game){
         this.game = game;
         BodyDef chainBodyDef = new BodyDef();
         chainBodyDef.type = BodyDef.BodyType.StaticBody;

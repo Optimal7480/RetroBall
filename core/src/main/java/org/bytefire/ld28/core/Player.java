@@ -19,7 +19,6 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import org.bytefire.ld28.core.Upgrade.Type;
 import org.bytefire.ld28.core.asset.Sprite;
 import org.bytefire.ld28.core.asset.SpriteHandler;
 import org.bytefire.ld28.core.screen.AbstractScreen;
@@ -27,10 +26,18 @@ import org.bytefire.ld28.core.screen.GameScreen;
 
 public class Player extends Actor implements CollisionManager{
 
+    public static final float MAX_BOUNCE = 8f;
+
     private final Body body;
     private final Fixture fix;
     private final LD28 game;
     private final TextureRegion tex;
+
+    private float bounce;
+    private float magnet;
+    private float fly;
+    private float gravity;
+    private float grow;
 
     public Player(LD28 game) {
         this.game = game;
@@ -54,6 +61,11 @@ public class Player extends Actor implements CollisionManager{
         ((AbstractScreen) game.getScreen()).getStage().addActor(this);
         setTouchable(Touchable.enabled);
 
+        bounce = 0;
+        magnet = 0;
+        fly = 0;
+        gravity = 0;
+        grow = 0;
     }
 
     @Override
@@ -84,6 +96,20 @@ public class Player extends Actor implements CollisionManager{
     public void act(float delta){
         setX(body.getPosition().x);
         setY(body.getPosition().y);
+
+        if (bounce > 0) fix.setRestitution(2.0f);
+        else fix.setRestitution(0.1f);
+
+        if (bounce - delta > 0) bounce -= delta;
+        else bounce = 0;
+        if (magnet - delta > 0) magnet -= delta;
+        else magnet = 0;
+        if (fly - delta > 0) fly -= delta;
+        else fly = 0;
+        if (gravity - delta > 0) gravity -= delta;
+        else gravity = 0;
+        if (grow - delta > 0) grow -= delta;
+        else grow = 0;
     }
 
     @Override
@@ -109,11 +135,47 @@ public class Player extends Actor implements CollisionManager{
         return body;
     }
 
-    public Fixture getFix() {
-        return fix;
-    }
-    
     public Vector2 getPosition(){
         return body.getPosition();
+    }
+
+    public float getBounce() {
+        return bounce;
+    }
+
+    public void setBounce(float bounce) {
+        this.bounce = bounce;
+    }
+
+    public float getMagnet() {
+        return magnet;
+    }
+
+    public void setMagnet(float magnet) {
+        this.magnet = magnet;
+    }
+
+    public float getFly() {
+        return fly;
+    }
+
+    public void setFly(float fly) {
+        this.fly = fly;
+    }
+
+    public float getGravity() {
+        return gravity;
+    }
+
+    public void setGravity(float gravity) {
+        this.gravity = gravity;
+    }
+
+    public float getGrow() {
+        return grow;
+    }
+
+    public void setGrow(float grow) {
+        this.grow = grow;
     }
 }

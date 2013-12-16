@@ -54,7 +54,7 @@ public class Upgrade extends Actor implements CollisionManager{
         setX( ((GameScreen) game.getScreen()).getPlayer().getX() + GameScreen.WINDOW_WIDTH);
         setY( ((GameScreen) game.getScreen()).getPlayer().getY() + (rand.nextInt(300) - 100));
     }
-    
+
     @Override
     public void draw (SpriteBatch batch, float parentAlpha) {
         Color color = getColor();
@@ -66,7 +66,7 @@ public class Upgrade extends Actor implements CollisionManager{
     public void act(float delta){
         if (((GameScreen) game.getScreen()).getPlayer().getPosition().dst(getX(), getY()) < 6){
             switch (type){
-                case BOUNCE: ((GameScreen) game.getScreen()).getPlayer().getFix().setRestitution(2.0f);
+                case BOUNCE: ((GameScreen) game.getScreen()).getPlayer().setBounce(Player.MAX_BOUNCE);
                     break;
                 default: break;
             }
@@ -93,7 +93,7 @@ public class Upgrade extends Actor implements CollisionManager{
     public Type getUpgradeType() {
         return type;
     }
-    
-    
-    
+
+
+
 }
