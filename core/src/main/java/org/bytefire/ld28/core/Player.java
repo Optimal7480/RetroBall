@@ -18,6 +18,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import org.bytefire.ld28.core.asset.Sprite;
+import org.bytefire.ld28.core.asset.SpriteHandler;
 import org.bytefire.ld28.core.screen.AbstractScreen;
 import org.bytefire.ld28.core.screen.GameScreen;
 
@@ -54,6 +55,23 @@ public class Player extends Actor implements CollisionManager{
         Color color = getColor();
         batch.setColor(color.r, color.g, color.b, color.a * parentAlpha);
         batch.draw(tex, getX() - (tex.getRegionWidth() / 2), getY() - (tex.getRegionHeight() / 2));
+
+                SpriteHandler s = game.getSpriteHandler();
+        float maxtime = 6f;
+        float time = 2.5f;
+        int height = s.getRegion(Sprite.FLY_OFF).getRegionHeight();
+        int midpoint = Math.round(time / maxtime * height);
+
+//        TextureRegion top = s.getRegion(Sprite.FLY_OFF);
+//        top.setRegionHeight(height - midpoint);
+//        TextureRegion bot = s.getRegion(Sprite.FLY_ON);
+//        bot.setRegionY(bot.getRegionY() + height - midpoint);
+//        bot.setRegionHeight(midpoint);
+//
+//        Color color = getColor();
+//        batch.setColor(color.r, color.g, color.b, color.a * parentAlpha);
+//        batch.draw(top, getX() - (top.getRegionWidth() / 2), getY() - (height / 2) + midpoint);
+//        batch.draw(bot, getX() - (bot.getRegionWidth() / 2), getY() - (height / 2));
     }
 
     @Override
