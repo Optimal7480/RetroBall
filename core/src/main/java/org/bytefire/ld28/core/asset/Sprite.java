@@ -8,7 +8,17 @@ public enum Sprite {
     SPLASH(Gdx.files.internal("studio.png"), 0, 0, 0),
     PLAYER(Gdx.files.internal("spritesheet.png"), 16, 16, 0),
     LINE(Gdx.files.internal("spritesheet.png"), 16, 8, 1),
-    LINECAP(Gdx.files.internal("spritesheet.png"), 16, 8, 5);
+    LINECAP(Gdx.files.internal("spritesheet.png"), 16, 8, 7),
+    BOUNCE_ON(Gdx.files.internal("spritesheet.png"), 8, 8, 3),
+    BOUNCE_OFF(Gdx.files.internal("spritesheet.png"), 8, 8, 7),
+    MAGNET_ON(Gdx.files.internal("spritesheet.png"), 8, 8, 4),
+    MAGNET_OFF(Gdx.files.internal("spritesheet.png"), 8, 8, 8),
+    FLY_ON(Gdx.files.internal("spritesheet.png"), 8, 8, 5),
+    FLY_OFF(Gdx.files.internal("spritesheet.png"), 8, 8, 9),
+    GRAV_ON(Gdx.files.internal("spritesheet.png"), 8, 8, 6),
+    GRAV_OFF(Gdx.files.internal("spritesheet.png"), 8, 8, 10),
+    SIZE_ON(Gdx.files.internal("spritesheet.png"), 8, 8, 7),
+    sIZE_OFF(Gdx.files.internal("spritesheet.png"), 8, 8, 11);
 
 
     public final FileHandle file;
