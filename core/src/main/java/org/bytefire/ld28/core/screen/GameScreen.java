@@ -29,9 +29,9 @@ import org.bytefire.ld28.core.Upgrade;
 import org.bytefire.ld28.core.Upgrade.Type;
 
 public class GameScreen extends AbstractScreen implements ContactListener{
-    private static final int WINDOW_WIDTH = 800;
-    private static final int WINDOW_HEIGHT = 600;
-    private static final float FRAME_GOAL = 1/60f;
+    public static final int WINDOW_WIDTH = 800;
+    public static final int WINDOW_HEIGHT = 600;
+    public static final float FRAME_GOAL = 1/60f;
     private static final int BOX_SCALE = 8;
     public static final float PLATFORM_CAP = 640;
 
@@ -45,11 +45,15 @@ public class GameScreen extends AbstractScreen implements ContactListener{
     private boolean mousePressed;
     private Color globalColor;
     private float totalPlatformLength;
-    private Random rand;
+    private Random spawn;
+    private long spawnSeed;
 
     private ArrayList<DrawnStatic> staticWalls;
     private DrawnStatic currentWall;
     private Player player;
+    
+    private float playerX;
+    private float xdelta;
 
     public GameScreen(LD28 main){
         super(main);
@@ -63,7 +67,22 @@ public class GameScreen extends AbstractScreen implements ContactListener{
         player = null;
         globalColor = Color.RED;
         totalPlatformLength = 0;
-        rand = new Random(System.nanoTime());
+        spawn = new Random(System.nanoTime());
+        spawnSeed = spawn.nextLong();
+        xdelta = 0;
+    }
+
+    @Override
+    public void show(){
+        super.show();
+        player = new Player(game);
+        playerX = player.getBody().getPosition().x;
+
+        //stage.setViewport(WINDOW_WIDTH, WINDOW_HEIGHT, true);
+        cam = new OrthographicCamera(WINDOW_WIDTH, WINDOW_HEIGHT);
+        stage.setCamera(cam);
+        cam.zoom = 0.50F;
+        cam.update();
     }
 
     @Override
@@ -73,9 +92,13 @@ public class GameScreen extends AbstractScreen implements ContactListener{
         cam.position.y = 120;
         cam.update();
         gui(delta);
-        if (DEBUG_RENDER) debugRender.render(world, cam.combined);
-        System.out.println(rand.nextInt());
-        if(rand.nextInt() % 500 == 1) spawnUpgrade();
+        
+        xdelta += delta;
+        for (int i = 0; i < Math.round(player.getPosition().x - playerX); i++){
+            forX(delta, Math.round(playerX) + i);
+            delta = 0;
+        }
+        playerX = player.getPosition().x;
 
         //if (delta < FRAME_GOAL) try {
         //    Thread.sleep((long) ((FRAME_GOAL - delta) * 1000));
@@ -109,18 +132,13 @@ public class GameScreen extends AbstractScreen implements ContactListener{
 
         worldTime += FRAME_GOAL;
         world.step(FRAME_GOAL, 6, 2);
+        world.getContactList();
     }
-
-    @Override
-    public void show(){
-        super.show();
-        player = new Player(game);
-
-        //stage.setViewport(WINDOW_WIDTH, WINDOW_HEIGHT, true);
-        cam = new OrthographicCamera(WINDOW_WIDTH, WINDOW_HEIGHT);
-        stage.setCamera(cam);
-        cam.zoom = 0.50F;
-        cam.update();
+    
+    public void forX(float delta, int x){
+        spawn.setSeed(x ^ spawnSeed);
+        if (DEBUG_RENDER) debugRender.render(world, cam.combined);
+        if(spawn.nextInt(50) == 1) spawnUpgrade();
     }
 
     public void gui(float delta){
@@ -134,8 +152,8 @@ public class GameScreen extends AbstractScreen implements ContactListener{
         gui.end();
     }
     
-    public void spawnUpgrade(){
-        new Upgrade(game, Type.BOUNCE);
+    public Upgrade spawnUpgrade(){
+        return new Upgrade(game, Type.BOUNCE);
     }
 
     @Override

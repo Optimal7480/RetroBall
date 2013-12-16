@@ -2,59 +2,60 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package org.bytefire.ld28.core;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
-import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import org.bytefire.ld28.core.Upgrade.Type;
+import java.util.Random;
 import org.bytefire.ld28.core.asset.Sprite;
 import org.bytefire.ld28.core.screen.AbstractScreen;
 import org.bytefire.ld28.core.screen.GameScreen;
 
-public class Player extends Actor implements CollisionManager{
-
-    private final Body body;
-    private final Fixture fix;
+/**
+ *
+ * @author timn
+ */
+public class Upgrade extends Actor implements CollisionManager{
     private final LD28 game;
     private final TextureRegion tex;
-
-    public Player(LD28 game) {
+    private final Body body;
+    public enum Type { LOW_GRAV, LARGE_BALL, BOUNCE, MAGNET, FLY }
+    private Type type;
+    public Random rand;
+    
+    public Upgrade(LD28 game, Type type){
+        rand = new Random(System.nanoTime());
         this.game = game;
+        this.type = type;
+        tex = game.getSpriteHandler().getRegion(Sprite.PLAYER);
         BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
-        bodyDef.position.set(160, 200);
+        bodyDef.type = BodyDef.BodyType.StaticBody;
+        bodyDef.position.set(((GameScreen) game.getScreen()).getPlayer().getX() + GameScreen.WINDOW_WIDTH, ((GameScreen) game.getScreen()).getPlayer().getY());
         body = ((GameScreen) game.getScreen()).getWorld().createBody(bodyDef);
         CircleShape circle = new CircleShape();
         circle.setRadius(5f);
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = circle;
-        fixtureDef.density = 0.5f;
+        fixtureDef.density = 0.1f;
         fixtureDef.friction = 1.0f;
         fixtureDef.restitution = 0.1f;
-        fix = body.createFixture(fixtureDef);
+        body.createFixture(fixtureDef);
         circle.dispose();
-        body.setLinearVelocity(new Vector2(64, -64));
         body.setUserData(this);
-
-        tex = game.getSpriteHandler().getRegion(Sprite.PLAYER);
         ((AbstractScreen) game.getScreen()).getStage().addActor(this);
         setTouchable(Touchable.enabled);
-
     }
-
+    
     @Override
     public void draw (SpriteBatch batch, float parentAlpha) {
         Color color = getColor();
@@ -66,36 +67,43 @@ public class Player extends Actor implements CollisionManager{
     public void act(float delta){
         setX(body.getPosition().x);
         setY(body.getPosition().y);
+        if (((GameScreen) game.getScreen()).getPlayer().getPosition().dst(getX(), getY()) < 6){
+            switch (type){
+                case BOUNCE: ((GameScreen) game.getScreen()).getPlayer().getFix().setRestitution(2.0f);
+                    break;
+                default: break;
+            }
+        }
     }
+    
+    @Override
+    public boolean remove(){
+        super.remove();
+        body.destroyFixture(body.getFixtureList().get(0));
+        return false;
+    }
+    
 
     @Override
-    public void beginContact(Contact contact) {
-    }
+    public void beginContact(Contact contact) {}
 
     @Override
-    public void endContact(Contact contact) {
-    }
+    public void endContact(Contact contact) {}
 
     @Override
     public void preSolve(Contact contact, Manifold oldManifold) {
     }
 
     @Override
-    public void postSolve(Contact contact, ContactImpulse impulse) {
-    }
+    public void postSolve(Contact contact, ContactImpulse impulse) {}
 
     @Override
-    public Class getType() {return this.getClass();}
+    public Class getType() { return this.getClass(); }
 
-    public Body getBody() {
-        return body;
-    }
-
-    public Fixture getFix() {
-        return fix;
+    public Type getUpgradeType() {
+        return type;
     }
     
-    public Vector2 getPosition(){
-        return body.getPosition();
-    }
+    
+    
 }
