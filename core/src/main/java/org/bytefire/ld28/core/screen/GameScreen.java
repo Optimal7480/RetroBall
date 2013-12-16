@@ -33,7 +33,7 @@ public class GameScreen extends AbstractScreen implements ContactListener{
     public static final int WINDOW_HEIGHT = 600;
     public static final float FRAME_GOAL = 1/60f;
     private static final int BOX_SCALE = 8;
-    public static final float PLATFORM_CAP = 640;
+    public static final float PLATFORM_CAP = 4000;
 
     private static final boolean DEBUG_RENDER = false;
 
@@ -138,7 +138,7 @@ public class GameScreen extends AbstractScreen implements ContactListener{
     public void forX(float delta, int x){
         spawn.setSeed(x ^ spawnSeed);
         if (DEBUG_RENDER) debugRender.render(world, cam.combined);
-        if(spawn.nextInt(50) == 1) spawnUpgrade();
+        if(spawn.nextInt(500) == 1) spawnUpgrade();
     }
 
     public void gui(float delta){
@@ -153,6 +153,14 @@ public class GameScreen extends AbstractScreen implements ContactListener{
     }
     
     public Upgrade spawnUpgrade(){
+        int spawnChance = spawn.nextInt(4);
+        switch (spawnChance){
+            case 0: return new Upgrade(game, Type.BOUNCE);
+            case 1: return new Upgrade(game, Type.MAGNET);
+            case 2: return new Upgrade(game, Type.FLY);
+            case 3: return new Upgrade(game, Type.LARGE_BALL);
+            case 4: return new Upgrade(game, Type.LOW_GRAV);
+        }
         return new Upgrade(game, Type.BOUNCE);
     }
 

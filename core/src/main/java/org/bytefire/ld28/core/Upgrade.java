@@ -7,12 +7,8 @@ package org.bytefire.ld28.core;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -27,33 +23,36 @@ import org.bytefire.ld28.core.screen.GameScreen;
  */
 public class Upgrade extends Actor implements CollisionManager{
     private final LD28 game;
-    private final TextureRegion tex;
-    private final Body body;
-    public enum Type { LOW_GRAV, LARGE_BALL, BOUNCE, MAGNET, FLY }
     private Type type;
-    public Random rand;
+    public enum Type { LOW_GRAV, LARGE_BALL, BOUNCE, MAGNET, FLY }
+    private final TextureRegion tex;
+    //private final Body body;
+    private Random rand;
     
     public Upgrade(LD28 game, Type type){
-        rand = new Random(System.nanoTime());
         this.game = game;
         this.type = type;
-        tex = game.getSpriteHandler().getRegion(Sprite.PLAYER);
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.StaticBody;
-        bodyDef.position.set(((GameScreen) game.getScreen()).getPlayer().getX() + GameScreen.WINDOW_WIDTH, ((GameScreen) game.getScreen()).getPlayer().getY());
-        body = ((GameScreen) game.getScreen()).getWorld().createBody(bodyDef);
-        CircleShape circle = new CircleShape();
-        circle.setRadius(5f);
-        FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.shape = circle;
-        fixtureDef.density = 0.1f;
-        fixtureDef.friction = 1.0f;
-        fixtureDef.restitution = 0.1f;
-        body.createFixture(fixtureDef);
-        circle.dispose();
-        body.setUserData(this);
+        switch(type){
+            case BOUNCE: tex = game.getSpriteHandler().getRegion(Sprite.BOUNCE_ON);
+                break;
+            case LOW_GRAV: tex = game.getSpriteHandler().getRegion(Sprite.GRAV_ON);
+                break;
+            case LARGE_BALL: tex = game.getSpriteHandler().getRegion(Sprite.SIZE_ON);
+                break;
+            case MAGNET: tex = game.getSpriteHandler().getRegion(Sprite.MAGNET_ON);
+                break;
+            case FLY: tex = game.getSpriteHandler().getRegion(Sprite.FLY_ON);
+                break;
+            default: tex = game.getSpriteHandler().getRegion(Sprite.SIZE_ON);
+                break;
+                
+        }
         ((AbstractScreen) game.getScreen()).getStage().addActor(this);
         setTouchable(Touchable.enabled);
+        rand = new Random(System.nanoTime());
+        
+        setX( ((GameScreen) game.getScreen()).getPlayer().getX() + GameScreen.WINDOW_WIDTH);
+        setY( ((GameScreen) game.getScreen()).getPlayer().getY() + (rand.nextInt(300) - 100));
     }
     
     @Override
@@ -65,24 +64,15 @@ public class Upgrade extends Actor implements CollisionManager{
 
     @Override
     public void act(float delta){
-        setX(body.getPosition().x);
-        setY(body.getPosition().y);
         if (((GameScreen) game.getScreen()).getPlayer().getPosition().dst(getX(), getY()) < 6){
             switch (type){
                 case BOUNCE: ((GameScreen) game.getScreen()).getPlayer().getFix().setRestitution(2.0f);
                     break;
                 default: break;
             }
+            remove();
         }
     }
-    
-    @Override
-    public boolean remove(){
-        super.remove();
-        body.destroyFixture(body.getFixtureList().get(0));
-        return false;
-    }
-    
 
     @Override
     public void beginContact(Contact contact) {}
