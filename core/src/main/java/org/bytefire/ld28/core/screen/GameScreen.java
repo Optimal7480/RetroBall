@@ -9,49 +9,51 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.ChainShape;
-import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.Fixture;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.Contact;
+import com.badlogic.gdx.physics.box2d.ContactImpulse;
+import com.badlogic.gdx.physics.box2d.ContactListener;
+import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.World;
 import java.util.ArrayList;
+import org.bytefire.ld28.core.CollisionManager;
+import org.bytefire.ld28.core.DrawnStatic;
 import org.bytefire.ld28.core.LD28;
+import org.bytefire.ld28.core.Player;
 
-public class GameScreen extends AbstractScreen {
+public class GameScreen extends AbstractScreen implements ContactListener{
     private static final int WINDOW_WIDTH = 640;
     private static final int WINDOW_HEIGHT = 480;
     private static final float FRAME_GOAL = 1/60f;
+    private static final int BOX_SCALE = 8;
 
     private OrthographicCamera cam;
     private World world;
     private Box2DDebugRenderer debugRender;
-
-
+    private float worldTime;
     private boolean mousePressed;
-    private ArrayList<Vector2> currentChain;
-    private double chainLength;
-    private float chainDelta;
-    private Body chain;
-    private boolean requiresUpdate;
 
-    public GameScreen(LD28 ld28){
-        super(ld28);
+    private ArrayList<DrawnStatic> staticWalls;
+    private DrawnStatic currentWall;
+    private Player player;
+
+    public GameScreen(LD28 main){
+        super(main);
         world = new World(new Vector2(0, -64), true);
         debugRender = new Box2DDebugRenderer();
         mousePressed = false;
-        currentChain = new ArrayList<Vector2>();
-        requiresUpdate = false;
+        staticWalls = new ArrayList<DrawnStatic>();
+        currentWall = null;
+        player = null;
     }
 
     @Override
     public void render(float delta){
         super.render(delta);
-        debugRender.render(world, cam.combined);
+        cam.position.x = 160;
+        cam.position.y = 120;
+        cam.update();
+        //debugRender.render(world, cam.combined);
 
         //if (delta < FRAME_GOAL) try {
         //    Thread.sleep((long) ((FRAME_GOAL - delta) * 1000));
@@ -60,73 +62,67 @@ public class GameScreen extends AbstractScreen {
         //}
         input(delta);
         physics(delta);
-        cam.translate(WINDOW_WIDTH/16, 0);
     }
 
     public void input(float delta){
         boolean mousePressedPrev = mousePressed;
         mousePressed = Gdx.input.isButtonPressed(Input.Buttons.LEFT);
         if (mousePressed){
-            if (!mousePressedPrev)
-                currentChain = new ArrayList<Vector2>();
-            Vector2 newPoint = new Vector2(Gdx.input.getX() - (WINDOW_WIDTH/2), WINDOW_HEIGHT - Gdx.input.getY() - (WINDOW_HEIGHT/2));
-            if (currentChain.size() > 0) {
-                Vector2 lastPoint = currentChain.get(currentChain.size() -1);
-                if (lastPoint.dst2(newPoint) > 16 * 16) currentChain.add(newPoint);
+            if (!mousePressedPrev){
+                if (currentWall != null) staticWalls.add(currentWall);
+                currentWall = new DrawnStatic(game);
             }
-            else currentChain.add(newPoint);
-            if (currentChain.size() >= 2) requiresUpdate = true;
+            currentWall.addPoint(
+                new Vector2(
+                    Gdx.input.getX() - (WINDOW_WIDTH/2),
+                    WINDOW_HEIGHT - Gdx.input.getY() - (WINDOW_HEIGHT/2)),
+                worldTime);
         }
     }
 
     public void physics(float delta){
-        if (requiresUpdate){
-            ChainShape staticChain = new ChainShape();
-            Vector2[] vectorArray = new Vector2[currentChain.size()];
-            staticChain.createChain(currentChain.toArray(vectorArray));
-            chain.createFixture(staticChain, 0.0f);
-            staticChain.dispose();
-            requiresUpdate = false;
-        }
+        worldTime += FRAME_GOAL;
         world.step(FRAME_GOAL, 6, 2);
+        stage.act(delta);
     }
 
     @Override
     public void show(){
         super.show();
+        player = new Player(game);
+
+        //stage.setViewport(WINDOW_WIDTH, WINDOW_HEIGHT, true);
         cam = new OrthographicCamera(WINDOW_WIDTH, WINDOW_HEIGHT);
-        //cam.zoom = 0.25F;
-        // First we create a body definition
-        BodyDef bodyDef = new BodyDef();
-        // We set our body to dynamic, for something like ground which doesn't move we would set it to StaticBody
-        bodyDef.type = BodyType.DynamicBody;
-        // Set our body's starting position in the world
-        bodyDef.position.set(-300, 200);
+        stage.setCamera(cam);
+        //cam.zoom = 0.5F;
+        cam.update();
+    }
 
-        // Create our body in the world using our body definition
-        Body body = world.createBody(bodyDef);
+    @Override
+    public void beginContact(Contact contact) {
+        ((CollisionManager)contact.getFixtureA().getBody().getUserData()).beginContact(contact);
+    }
 
-        // Create a circle shape and set its radius to 6
-        CircleShape circle = new CircleShape();
-        circle.setRadius(6f);
+    @Override
+    public void endContact(Contact contact) {
+        ((CollisionManager)contact.getFixtureA().getBody().getUserData()).endContact(contact);
+    }
 
-        // Create a fixture definition to apply our shape to
-        FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.shape = circle;
-        fixtureDef.density = 0.2f;
-        fixtureDef.friction = 1000.0f;
-        fixtureDef.restitution = 2f; // Make it bounce a little bit
+    @Override
+    public void preSolve(Contact contact, Manifold oldManifold) {
+        ((CollisionManager)contact.getFixtureA().getBody().getUserData()).preSolve(contact, oldManifold);
+    }
 
-        // Create our fixture and attach it to the body
-        Fixture fixture = body.createFixture(fixtureDef);
-        // Remember to dispose of any shapes after you're done with them!
-        // BodyDef and FixtureDef don't need disposing, but shapes do.
-        circle.dispose();
-        body.setLinearVelocity(new Vector2(64, -64));
+    @Override
+    public void postSolve(Contact contact, ContactImpulse impulse) {
+        ((CollisionManager)contact.getFixtureA().getBody().getUserData()).postSolve(contact, impulse);
+    }
 
-        BodyDef chainBodyDef = new BodyDef();
-        chainBodyDef.type = BodyType.StaticBody;
-        chainBodyDef.position.set(0, 0);
-        chain = world.createBody(chainBodyDef);
+    public World getWorld() {
+        return world;
+    }
+
+    public float getWorldTime() {
+        return worldTime;
     }
 }
