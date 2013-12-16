@@ -123,7 +123,7 @@ public class GameScreen extends AbstractScreen implements ContactListener{
         gui.end();
         gui.begin(ShapeRenderer.ShapeType.Filled);
         gui.setColor(Color.WHITE);
-        gui.rect(50, 560, 700 * totalPlatformLength / PLATFORM_CAP, 20);
+        gui.rect(50, 560, 700 - (700 * totalPlatformLength / PLATFORM_CAP), 20);
         gui.end();
     }
 
