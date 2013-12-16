@@ -18,7 +18,8 @@ public enum Sprite {
     GRAV_ON(Gdx.files.internal("spritesheet.png"), 16, 16, 5),
     GRAV_OFF(Gdx.files.internal("spritesheet.png"), 16, 16, 10),
     SIZE_ON(Gdx.files.internal("spritesheet.png"), 16, 16, 6),
-    SIZE_OFF(Gdx.files.internal("spritesheet.png"), 16, 16, 11);
+    SIZE_OFF(Gdx.files.internal("spritesheet.png"), 16, 16, 11),
+    WALL(Gdx.files.internal("spritesheet.png"), 24, 24, 14);
 
     public final FileHandle file;
     public final int width;

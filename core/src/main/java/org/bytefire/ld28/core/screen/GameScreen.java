@@ -22,6 +22,7 @@ import java.util.Random;
 import org.bytefire.ld28.core.CollisionManager;
 import org.bytefire.ld28.core.Platform;
 import org.bytefire.ld28.core.LD28;
+import org.bytefire.ld28.core.Obstacle;
 import org.bytefire.ld28.core.Player;
 import org.bytefire.ld28.core.Upgrade;
 import org.bytefire.ld28.core.Upgrade.Type;
@@ -31,9 +32,9 @@ public class GameScreen extends AbstractScreen implements ContactListener{
     public static final int WINDOW_HEIGHT = 600;
     public static final float FRAME_GOAL = 1/60f;
     private static final int BOX_SCALE = 8;
-    public static final float PLATFORM_CAP = 4000;
+    public static final float PLATFORM_CAP = 400;
 
-    private static final boolean DEBUG_RENDER = false;
+    private static final boolean DEBUG_RENDER = true;
 
     private ShapeRenderer gui;
     private OrthographicCamera cam;
@@ -132,7 +133,8 @@ public class GameScreen extends AbstractScreen implements ContactListener{
     public void forX(float delta, int x){
         spawn.setSeed(x ^ spawnSeed);
         if (DEBUG_RENDER) debugRender.render(world, cam.combined);
-        if(spawn.nextInt(500) == 1) spawnUpgrade();
+        //if(spawn.nextInt(500) == 1) spawnUpgrade();
+        if(spawn.nextInt(300) == 1) spawnObstacle();
     }
 
     public void gui(float delta){
@@ -156,6 +158,11 @@ public class GameScreen extends AbstractScreen implements ContactListener{
             case 4: return new Upgrade(game, Type.LOW_GRAV);
         }
         return new Upgrade(game, Type.BOUNCE);
+    }
+    
+    public Obstacle spawnObstacle(){
+        System.out.println("Spawned obstacle");
+        return new Obstacle(game);  
     }
 
     @Override

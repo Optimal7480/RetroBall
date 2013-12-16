@@ -49,7 +49,7 @@ public class Upgrade extends Actor implements CollisionManager{
         }
         ((AbstractScreen) game.getScreen()).getStage().addActor(this);
         setTouchable(Touchable.enabled);
-        rand = new Random(System.nanoTime());
+        rand = new Random();
         
         setX( ((GameScreen) game.getScreen()).getPlayer().getX() + GameScreen.WINDOW_WIDTH);
         setY( ((GameScreen) game.getScreen()).getPlayer().getY() + (rand.nextInt(300) - 100));
