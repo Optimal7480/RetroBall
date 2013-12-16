@@ -26,7 +26,7 @@ import org.bytefire.ld28.core.screen.AbstractScreen;
 import org.bytefire.ld28.core.screen.GameScreen;
 
 public class DrawnStatic extends Actor implements CollisionManager{
-    private static final long FADE_TIME = 8;
+    private static final long FADE_TIME = 2;
 
     private final ArrayList<Vector2> chain;
     private double length;
@@ -45,6 +45,7 @@ public class DrawnStatic extends Actor implements CollisionManager{
         body = ((GameScreen) game.getScreen()).getWorld().createBody(chainBodyDef);
         body.setUserData(this);
 
+        if(body.getFixtureList().size()>0) body.getFixtureList().get(body.getFixtureList().size()-1).setRestitution(1.0f);
         chain = new ArrayList<Vector2>();
         length = 0;
         time = new ArrayList<Float>();
@@ -175,6 +176,12 @@ public class DrawnStatic extends Actor implements CollisionManager{
 
     @Override
     public void beginContact(Contact contact) {
+        Class type = ((CollisionManager) contact.getFixtureB().getBody().getUserData()).getType();
+        if(type == Player.class) {
+            Body body = contact.getFixtureB().getBody();
+            Vector2 velocity = body.getLinearVelocity().cpy();
+            if (velocity.y < 0.5) body.applyForceToCenter(velocity.cpy().scl(100f), true);
+        }
     }
 
     @Override
