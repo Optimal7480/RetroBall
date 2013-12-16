@@ -91,13 +91,13 @@ public class DrawnStatic extends Actor implements CollisionManager{
 //        batch.begin();
         Color color = getColor();
         batch.setColor(color.r, color.g, color.b, color.a * parentAlpha);
-        for (int i = 1; i < chain.size(); i++){
+        for (int i = 0; i < chain.size()-1; i++){
             Vector2 start = chain.get(i).cpy();
-            Vector2 dir = chain.get(i-1).cpy().sub(start.cpy());
+            Vector2 dir = new Vector2(start.x-chain.get(i+1).x, start.y-chain.get(i+1).y);
             batch.draw(
                 game.getSpriteHandler().getRegion(Sprite.LINE),
-                start.x+(dir.x*8)-8, start.y+(dir.y*8)-8,
-                8, 8, 16f, 8f * dir.len(), 1f, 1f, dir.angle()+90
+                start.x-8, start.y-8,
+                8f, 8f, 16f, dir.len(), 1f, 1f , dir.angle()+90
             );
         }
     }
