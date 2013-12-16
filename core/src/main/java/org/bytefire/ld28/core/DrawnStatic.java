@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -26,10 +27,10 @@ import org.bytefire.ld28.core.screen.AbstractScreen;
 import org.bytefire.ld28.core.screen.GameScreen;
 
 public class DrawnStatic extends Actor implements CollisionManager{
-    private static final long FADE_TIME = 8;
+    private static final long FADE_TIME = 4;
 
     private final ArrayList<Vector2> chain;
-    private double length;
+    private float length;
     private final ArrayList<Float> time;
     private final Body body;
     private Fixture fix;
@@ -52,53 +53,29 @@ public class DrawnStatic extends Actor implements CollisionManager{
         fix = null;
         shape = new ShapeRenderer();
         ((AbstractScreen) game.getScreen()).getStage().addActor(this);
-        setColor(Color.WHITE);
+        setColor(Color.RED);
     }
 
     @Override
     public void draw (SpriteBatch batch, float parentAlpha) {
-//        batch.end();
-//        Gdx.gl20.glEnable(GL20.GL_BLEND);
-//        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-//        shape.setProjectionMatrix(batch.getProjectionMatrix().cpy());
-//        shape.begin(ShapeRenderer.ShapeType.Line);
-//        Color color = getColor();
-//        Vector2 lastv = null;
-//        for (Vector2 vector : chain){
-//            if (lastv == null) lastv = vector;
-//            else {
-//                shape.setColor(color.r, color.g, color.b, 0.01f);
-//                Gdx.gl20.glLineWidth(9);
-//                shape.flush();
-//                shape.line(lastv, vector);
-//                shape.setColor(color.r, color.g, color.b, 0.03f);
-//                Gdx.gl20.glLineWidth(7);
-//                shape.flush();
-//                shape.line(lastv, vector);
-//                shape.setColor(color.r, color.g, color.b, 0.12f);
-//                Gdx.gl20.glLineWidth(5);
-//                shape.flush();
-//                shape.line(lastv, vector);
-//                shape.setColor(color.r, color.g, color.b, 0.16f);
-//                Gdx.gl20.glLineWidth(3);
-//                shape.flush();
-//                shape.line(lastv, vector);
-//                lastv = vector;
-//            }
-//        }
-//        shape.end();
-//        Gdx.gl20.glDisable(GL20.GL_BLEND);
-//        batch.begin();
         Color color = getColor();
         batch.setColor(color.r, color.g, color.b, color.a * parentAlpha);
-        for (int i = 0; i < chain.size()-1; i++){
+        for (int i = 0; i < chain.size() - 1; i++){
             Vector2 start = chain.get(i).cpy();
-            Vector2 dir = new Vector2(start.x-chain.get(i+1).x, start.y-chain.get(i+1).y);
+            Vector2 end = chain.get(i + 1).cpy();
+            Vector2 dir = new Vector2(start.x - end.x, start.y - end.y);
             batch.draw(
                 game.getSpriteHandler().getRegion(Sprite.LINE),
-                start.x-8, start.y-8,
-                8f, 8f, 16f, dir.len(), 1f, 1f , dir.angle()+90
+                start.x - 8 - (MathUtils.cosDeg(dir.angle()) * 8),
+                start.y - 8 - (MathUtils.sinDeg(dir.angle()) * 8),
+                8f, 8f, 16f, dir.len(), 1f, 1f , dir.angle() + 90
             );
+//            batch.draw(
+//                game.getSpriteHandler().getRegion(Sprite.LINECAP),
+//                start.x - 8 - (MathUtils.cosDeg(dir.angle()) * 8),
+//                start.y - 8 - (MathUtils.sinDeg(dir.angle()) * 8),
+//                8f, 8f, 16f, 8f, 1f, 1f , dir.angle() + 90
+//            );
         }
     }
 
@@ -110,6 +87,8 @@ public class DrawnStatic extends Actor implements CollisionManager{
                 //for (int ii = 0; ii < time.size() - i; i++) time.remove(i + ii);
                 time.remove(i);
                 chain.remove(i);
+                if (chain.size() > 1) length -= chain.get(i).dst(chain.get(i + 1));
+                else length = 0;
                 requiresUpdate = true;
             }
         }
@@ -124,25 +103,31 @@ public class DrawnStatic extends Actor implements CollisionManager{
     }
 
     public void addPoint(Vector2 vector, float worldTime){
-        //Pass Checks
-        if (chain.size() > 0) {
-            Vector2 lastPoint = chain.get(chain.size() -1);
-            if (lastPoint.dst2(vector) > 16 * 16) addVector(vector, worldTime);
+        if (chain.isEmpty()){
+            chain.add(vector);
+            time.add(worldTime);
         }
-        else addVector(vector, worldTime);
-        if (chain.size() >= 1) requiresUpdate = true;
+        float worldLength = ((GameScreen) game.getScreen()).getTotalPlatformLength();
+        Vector2 segment = vector.cpy().sub(chain.get(chain.size() - 1).cpy());
+        float segmentLength = Math.abs(segment.len());
+        Vector2 lastPoint = chain.get(chain.size() -1);
+        if (lastPoint.dst(vector.cpy()) > 16){
+            if (segmentLength + worldLength < GameScreen.PLATFORM_CAP){
+                chain.add(vector);
+                time.add(worldTime);
+                length += segmentLength;
+            }
+            else if (GameScreen.PLATFORM_CAP - worldLength > 1f){
+                float targetLength = GameScreen.PLATFORM_CAP - worldLength;
+                chain.add(lastPoint.cpy().add(segment.cpy().scl(targetLength / segmentLength)));
+                time.add(worldTime);
+                length += targetLength;
+            }
+            if (chain.size() >= 2) requiresUpdate = true;
+        }
     }
 
-    private void addVector(Vector2 vector, float worldTime){
-        //Add Vector
-        chain.add(vector);
-        //Add time
-        time.add(worldTime);
-        //Add length
-        length += vector.dst(0, 0);
-    }
-
-    public double getLength() {
+    public float getLength() {
         return length;
     }
 

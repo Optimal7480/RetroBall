@@ -5,11 +5,9 @@
 
 package org.bytefire.ld28.core;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -36,7 +34,7 @@ public class Player extends Actor implements CollisionManager{
         bodyDef.position.set(160, 200);
         body = ((GameScreen) game.getScreen()).getWorld().createBody(bodyDef);
         CircleShape circle = new CircleShape();
-        circle.setRadius(4f);
+        circle.setRadius(5f);
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = circle;
         fixtureDef.density = 0.2f;

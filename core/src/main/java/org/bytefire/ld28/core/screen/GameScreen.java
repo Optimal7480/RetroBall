@@ -7,6 +7,7 @@ package org.bytefire.ld28.core.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
@@ -26,12 +27,17 @@ public class GameScreen extends AbstractScreen implements ContactListener{
     private static final int WINDOW_HEIGHT = 480;
     private static final float FRAME_GOAL = 1/60f;
     private static final int BOX_SCALE = 8;
+    public static final float PLATFORM_CAP = 640;
+
+    private static final boolean DEBUG_RENDER = false;
 
     private OrthographicCamera cam;
     private World world;
     private Box2DDebugRenderer debugRender;
     private float worldTime;
     private boolean mousePressed;
+    private Color globalColor;
+    private float totalPlatformLength;
 
     private ArrayList<DrawnStatic> staticWalls;
     private DrawnStatic currentWall;
@@ -45,6 +51,8 @@ public class GameScreen extends AbstractScreen implements ContactListener{
         staticWalls = new ArrayList<DrawnStatic>();
         currentWall = null;
         player = null;
+        globalColor = Color.RED;
+        totalPlatformLength = 0;
     }
 
     @Override
@@ -53,7 +61,8 @@ public class GameScreen extends AbstractScreen implements ContactListener{
         cam.position.x = player.getX();
         cam.position.y = 120;
         cam.update();
-        debugRender.render(world, cam.combined);
+        System.out.println("totalPlatformLength = " + totalPlatformLength);
+        if (DEBUG_RENDER) debugRender.render(world, cam.combined);
 
         //if (delta < FRAME_GOAL) try {
         //    Thread.sleep((long) ((FRAME_GOAL - delta) * 1000));
@@ -79,9 +88,14 @@ public class GameScreen extends AbstractScreen implements ContactListener{
     }
 
     public void physics(float delta){
+        if (currentWall != null){
+            totalPlatformLength = (float) currentWall.getLength();
+            for (DrawnStatic platform : staticWalls)
+                totalPlatformLength += platform.getLength();
+        }
+
         worldTime += FRAME_GOAL;
         world.step(FRAME_GOAL, 6, 2);
-        stage.act(delta);
     }
 
     @Override
@@ -122,5 +136,9 @@ public class GameScreen extends AbstractScreen implements ContactListener{
 
     public float getWorldTime() {
         return worldTime;
+    }
+
+    public float getTotalPlatformLength() {
+        return totalPlatformLength;
     }
 }
