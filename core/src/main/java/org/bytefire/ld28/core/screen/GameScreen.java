@@ -20,10 +20,13 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.World;
 import java.util.ArrayList;
+import java.util.Random;
 import org.bytefire.ld28.core.CollisionManager;
 import org.bytefire.ld28.core.DrawnStatic;
 import org.bytefire.ld28.core.LD28;
 import org.bytefire.ld28.core.Player;
+import org.bytefire.ld28.core.Upgrade;
+import org.bytefire.ld28.core.Upgrade.Type;
 
 public class GameScreen extends AbstractScreen implements ContactListener{
     private static final int WINDOW_WIDTH = 800;
@@ -42,6 +45,7 @@ public class GameScreen extends AbstractScreen implements ContactListener{
     private boolean mousePressed;
     private Color globalColor;
     private float totalPlatformLength;
+    private Random rand;
 
     private ArrayList<DrawnStatic> staticWalls;
     private DrawnStatic currentWall;
@@ -59,6 +63,7 @@ public class GameScreen extends AbstractScreen implements ContactListener{
         player = null;
         globalColor = Color.RED;
         totalPlatformLength = 0;
+        rand = new Random(System.nanoTime());
     }
 
     @Override
@@ -69,6 +74,8 @@ public class GameScreen extends AbstractScreen implements ContactListener{
         cam.update();
         gui(delta);
         if (DEBUG_RENDER) debugRender.render(world, cam.combined);
+        System.out.println(rand.nextInt());
+        if(rand.nextInt() % 500 == 1) spawnUpgrade();
 
         //if (delta < FRAME_GOAL) try {
         //    Thread.sleep((long) ((FRAME_GOAL - delta) * 1000));
@@ -126,25 +133,35 @@ public class GameScreen extends AbstractScreen implements ContactListener{
         gui.rect(50, 560, 700 * totalPlatformLength / PLATFORM_CAP, 20);
         gui.end();
     }
+    
+    public void spawnUpgrade(){
+        new Upgrade(game, Type.BOUNCE);
+    }
 
     @Override
     public void beginContact(Contact contact) {
         ((CollisionManager) contact.getFixtureA().getBody().getUserData()).beginContact(contact);
+        ((CollisionManager) contact.getFixtureB().getBody().getUserData()).beginContact(contact);
+
     }
 
     @Override
     public void endContact(Contact contact) {
         ((CollisionManager)contact.getFixtureA().getBody().getUserData()).endContact(contact);
+        ((CollisionManager)contact.getFixtureB().getBody().getUserData()).endContact(contact);
+
     }
 
     @Override
     public void preSolve(Contact contact, Manifold oldManifold) {
         ((CollisionManager)contact.getFixtureA().getBody().getUserData()).preSolve(contact, oldManifold);
+        ((CollisionManager)contact.getFixtureB().getBody().getUserData()).preSolve(contact, oldManifold);
     }
 
     @Override
     public void postSolve(Contact contact, ContactImpulse impulse) {
         ((CollisionManager)contact.getFixtureA().getBody().getUserData()).postSolve(contact, impulse);
+        ((CollisionManager)contact.getFixtureB().getBody().getUserData()).postSolve(contact, impulse);
     }
 
     public World getWorld() {
@@ -157,5 +174,9 @@ public class GameScreen extends AbstractScreen implements ContactListener{
 
     public float getTotalPlatformLength() {
         return totalPlatformLength;
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 }
