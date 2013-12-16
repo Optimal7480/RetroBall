@@ -50,7 +50,7 @@ public class GameScreen extends AbstractScreen implements ContactListener{
     @Override
     public void render(float delta){
         super.render(delta);
-        cam.position.x = 160;
+        cam.position.x = player.getX();
         cam.position.y = 120;
         cam.update();
         debugRender.render(world, cam.combined);
