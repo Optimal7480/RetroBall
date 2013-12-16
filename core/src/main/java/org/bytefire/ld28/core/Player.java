@@ -19,7 +19,6 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import org.bytefire.ld28.core.Upgrade.Type;
 import org.bytefire.ld28.core.asset.Sprite;
 import org.bytefire.ld28.core.asset.SpriteHandler;
 import org.bytefire.ld28.core.screen.AbstractScreen;
@@ -112,7 +111,7 @@ public class Player extends Actor implements CollisionManager{
     public Fixture getFix() {
         return fix;
     }
-    
+
     public Vector2 getPosition(){
         return body.getPosition();
     }

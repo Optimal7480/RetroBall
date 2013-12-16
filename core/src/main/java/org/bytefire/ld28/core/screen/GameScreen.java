@@ -22,7 +22,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import java.util.ArrayList;
 import java.util.Random;
 import org.bytefire.ld28.core.CollisionManager;
-import org.bytefire.ld28.core.DrawnStatic;
+import org.bytefire.ld28.core.Platform;
 import org.bytefire.ld28.core.LD28;
 import org.bytefire.ld28.core.Player;
 import org.bytefire.ld28.core.Upgrade;
@@ -48,10 +48,10 @@ public class GameScreen extends AbstractScreen implements ContactListener{
     private Random spawn;
     private long spawnSeed;
 
-    private ArrayList<DrawnStatic> staticWalls;
-    private DrawnStatic currentWall;
+    private ArrayList<Platform> platforms;
+    private Platform currentPlatform;
     private Player player;
-    
+
     private float playerX;
     private float xdelta;
 
@@ -62,8 +62,8 @@ public class GameScreen extends AbstractScreen implements ContactListener{
         debugRender = new Box2DDebugRenderer();
         world.setContactListener(this);
         mousePressed = false;
-        staticWalls = new ArrayList<DrawnStatic>();
-        currentWall = null;
+        platforms = new ArrayList<Platform>();
+        currentPlatform = null;
         player = null;
         globalColor = Color.RED;
         totalPlatformLength = 0;
@@ -92,7 +92,7 @@ public class GameScreen extends AbstractScreen implements ContactListener{
         cam.position.y = 120;
         cam.update();
         gui(delta);
-        
+
         xdelta += delta;
         for (int i = 0; i < Math.round(player.getPosition().x - playerX); i++){
             forX(delta, Math.round(playerX) + i);
@@ -115,18 +115,18 @@ public class GameScreen extends AbstractScreen implements ContactListener{
         Vector2 mouse = stage.screenToStageCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
         if (mousePressed){
             if (!mousePressedPrev){
-                if (currentWall != null) staticWalls.add(currentWall);
-                currentWall = new DrawnStatic(game);
+                if (currentPlatform != null) platforms.add(currentPlatform);
+                currentPlatform = new Platform(game);
             }
-            currentWall.addPoint(
+            currentPlatform.addPoint(
                 new Vector2(mouse.x, mouse.y), worldTime);
         }
     }
 
     public void physics(float delta){
-        if (currentWall != null){
-            totalPlatformLength = (float) currentWall.getLength();
-            for (DrawnStatic platform : staticWalls)
+        if (currentPlatform != null){
+            totalPlatformLength = (float) currentPlatform.getLength();
+            for (Platform platform : platforms)
                 totalPlatformLength += platform.getLength();
         }
 
@@ -134,7 +134,7 @@ public class GameScreen extends AbstractScreen implements ContactListener{
         world.step(FRAME_GOAL, 6, 2);
         world.getContactList();
     }
-    
+
     public void forX(float delta, int x){
         spawn.setSeed(x ^ spawnSeed);
         if (DEBUG_RENDER) debugRender.render(world, cam.combined);
@@ -151,7 +151,7 @@ public class GameScreen extends AbstractScreen implements ContactListener{
         gui.rect(50, 560, 700 - (700 * totalPlatformLength / PLATFORM_CAP), 20);
         gui.end();
     }
-    
+
     public Upgrade spawnUpgrade(){
         return new Upgrade(game, Type.BOUNCE);
     }
