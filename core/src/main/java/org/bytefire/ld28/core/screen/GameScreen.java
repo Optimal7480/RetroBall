@@ -68,7 +68,7 @@ public class GameScreen extends AbstractScreen implements ContactListener{
         cam.position.y = 120;
         cam.update();
         gui(delta);
-        debugRender.render(world, cam.combined);
+        if (DEBUG_RENDER) debugRender.render(world, cam.combined);
 
         //if (delta < FRAME_GOAL) try {
         //    Thread.sleep((long) ((FRAME_GOAL - delta) * 1000));
@@ -115,7 +115,7 @@ public class GameScreen extends AbstractScreen implements ContactListener{
         cam.zoom = 0.50F;
         cam.update();
     }
-    
+
     public void gui(float delta){
         gui.begin(ShapeRenderer.ShapeType.Line);
         gui.setColor(Color.WHITE);
@@ -123,7 +123,7 @@ public class GameScreen extends AbstractScreen implements ContactListener{
         gui.end();
         gui.begin(ShapeRenderer.ShapeType.Filled);
         gui.setColor(Color.WHITE);
-        gui.rect(50, 560, 350, 20);
+        gui.rect(50, 560, 700 * totalPlatformLength / PLATFORM_CAP, 20);
         gui.end();
     }
 
