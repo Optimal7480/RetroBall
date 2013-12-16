@@ -29,7 +29,7 @@ public class Upgrade extends Actor implements CollisionManager{
     private final LD28 game;
     private final TextureRegion tex;
     private final Body body;
-    public enum Type { LOW_GRAV, LARGE_BALL, BOUNCE, MAGNET, FLY }
+    public enum Type { GRAVITY, GROW, BOUNCE, MAGNET, FLY }
     private Type type;
     public Random rand;
 
@@ -70,6 +70,10 @@ public class Upgrade extends Actor implements CollisionManager{
         if (((GameScreen) game.getScreen()).getPlayer().getPosition().dst(getX(), getY()) < 6){
             switch (type){
                 case BOUNCE: ((GameScreen) game.getScreen()).getPlayer().setBounce(Player.MAX_BOUNCE);
+                    break;
+                case GROW: ((GameScreen) game.getScreen()).getPlayer().setGrow(Player.MAX_GROW);
+                    break;
+                case GRAVITY: ((GameScreen) game.getScreen()).getPlayer().setGravity(Player.MAX_GRAVITY);
                     break;
                 default: break;
             }

@@ -9,6 +9,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
@@ -25,6 +27,8 @@ import org.bytefire.ld28.core.LD28;
 import org.bytefire.ld28.core.Player;
 import org.bytefire.ld28.core.Upgrade;
 import org.bytefire.ld28.core.Upgrade.Type;
+import org.bytefire.ld28.core.asset.Sprite;
+import org.bytefire.ld28.core.asset.SpriteHandler;
 
 public class GameScreen extends AbstractScreen implements ContactListener{
     public static final int WINDOW_WIDTH = 800;
@@ -35,7 +39,8 @@ public class GameScreen extends AbstractScreen implements ContactListener{
 
     private static final boolean DEBUG_RENDER = false;
 
-    private ShapeRenderer gui;
+    private ShapeRenderer guiShape;
+    private SpriteBatch guiSprite;
     private OrthographicCamera cam;
     private World world;
     private Box2DDebugRenderer debugRender;
@@ -55,7 +60,8 @@ public class GameScreen extends AbstractScreen implements ContactListener{
 
     public GameScreen(LD28 main){
         super(main);
-        gui = new ShapeRenderer();
+        guiShape = new ShapeRenderer();
+        guiSprite = new SpriteBatch();
         world = new World(new Vector2(0, -64), true);
         debugRender = new Box2DDebugRenderer();
         world.setContactListener(this);
@@ -65,7 +71,7 @@ public class GameScreen extends AbstractScreen implements ContactListener{
         player = null;
         globalColor = Color.RED;
         totalPlatformLength = 0;
-        spawn = new Random(System.nanoTime());
+        spawn = new Random();
         spawnSeed = spawn.nextLong();
         xdelta = 0;
     }
@@ -136,14 +142,66 @@ public class GameScreen extends AbstractScreen implements ContactListener{
     }
 
     public void gui(float delta){
-        gui.begin(ShapeRenderer.ShapeType.Line);
-        gui.setColor(Color.WHITE);
-        gui.rect(50, 560, 700, 20);
-        gui.end();
-        gui.begin(ShapeRenderer.ShapeType.Filled);
-        gui.setColor(Color.WHITE);
-        gui.rect(50, 560, 700 - (700 * totalPlatformLength / PLATFORM_CAP), 20);
-        gui.end();
+        guiShape.begin(ShapeRenderer.ShapeType.Line);
+            guiShape.setColor(Color.WHITE);
+            guiShape.rect(50, 560, 700, 20);
+            guiShape.end();
+            guiShape.begin(ShapeRenderer.ShapeType.Filled);
+            guiShape.setColor(Color.WHITE);
+            guiShape.rect(50, 560, 700 - (700 * totalPlatformLength / PLATFORM_CAP), 20);
+        guiShape.end();
+        guiSprite.begin();
+            SpriteHandler s = game.getSpriteHandler();
+
+            int height = s.getRegion(Sprite.BOUNCE_ON).getRegionHeight();
+            int bounce = Math.round(player.getBounce() / Player.MAX_BOUNCE * height);
+            int grow = Math.round(player.getGrow() / Player.MAX_GROW * height);
+            int gravity = Math.round(player.getGravity() / Player.MAX_GRAVITY * height);
+
+            TextureRegion topBounce = s.getRegion(Sprite.BOUNCE_OFF);
+            topBounce.setRegionHeight(height - bounce);
+            TextureRegion botBounce = s.getRegion(Sprite.BOUNCE_ON);
+            botBounce.setRegionY(botBounce.getRegionY() + height - bounce);
+            botBounce.setRegionHeight(bounce);
+
+            TextureRegion topGrow = s.getRegion(Sprite.SIZE_OFF);
+            topGrow.setRegionHeight(height - grow);
+            TextureRegion botGrow = s.getRegion(Sprite.SIZE_ON);
+            botGrow.setRegionY(botGrow.getRegionY() + height - grow);
+            botGrow.setRegionHeight(grow);
+
+            TextureRegion topGravity = s.getRegion(Sprite.GRAV_OFF);
+            topGravity.setRegionHeight(height - gravity);
+            TextureRegion botGravity = s.getRegion(Sprite.GRAV_ON);
+            botGravity.setRegionY(botGravity.getRegionY() + height - gravity);
+            botGravity.setRegionHeight(gravity);
+
+            Color color = Color.WHITE;
+
+            guiSprite.setColor(color.r, color.g, color.b, color.a);
+            guiSprite.draw(
+                topBounce, 50, WINDOW_HEIGHT - 40 - ((16 + bounce) * 4),
+                topBounce.getRegionWidth() * 4, topBounce.getRegionHeight() * 4);
+            guiSprite.draw(
+                botBounce, 50, WINDOW_HEIGHT - 40 - (16 * 4),
+                botBounce.getRegionWidth() * 4, botBounce.getRegionHeight() * 4);
+
+            guiSprite.setColor(color.r, color.g, color.b, color.a);
+            guiSprite.draw(
+                topGrow, 114, WINDOW_HEIGHT - 40 - ((16 + grow) * 4),
+                topGrow.getRegionWidth() * 4, topGrow.getRegionHeight() * 4);
+            guiSprite.draw(
+                botGrow, 114, WINDOW_HEIGHT - 40 - (16 * 4),
+                botGrow.getRegionWidth() * 4, botGrow.getRegionHeight() * 4);
+
+            guiSprite.setColor(color.r, color.g, color.b, color.a);
+            guiSprite.draw(
+                topGravity, 178, WINDOW_HEIGHT - 40 - ((16 + gravity) * 4),
+                topGravity.getRegionWidth() * 4, topGravity.getRegionHeight() * 4);
+            guiSprite.draw(
+                botGravity, 178, WINDOW_HEIGHT - 40 - (16 * 4),
+                botGravity.getRegionWidth() * 4, botGravity.getRegionHeight() * 4);
+        guiSprite.end();
     }
 
     public Upgrade spawnUpgrade(){
