@@ -35,10 +35,9 @@ public class GameScreen extends AbstractScreen implements ContactListener{
     public static final int WINDOW_WIDTH = 800;
     public static final int WINDOW_HEIGHT = 600;
     public static final float FRAME_GOAL = 1/60f;
-    private static final int BOX_SCALE = 8;
     public static final float PLATFORM_CAP = 400;
 
-    private static final boolean DEBUG_RENDER = true;
+    private static final boolean DEBUG_RENDER = false;
 
     private ShapeRenderer guiShape;
     private SpriteBatch guiSprite;
@@ -139,8 +138,8 @@ public class GameScreen extends AbstractScreen implements ContactListener{
     public void forX(float delta, int x){
         spawn.setSeed(x ^ spawnSeed);
         if (DEBUG_RENDER) debugRender.render(world, cam.combined);
-        //if(spawn.nextInt(500) == 1) spawnUpgrade();
-        if(spawn.nextInt(300) == 1) spawnObstacle();
+        if(spawn.nextInt(50) == 1) spawnUpgrade();
+        //if(spawn.nextInt(300) == 1) spawnObstacle();
     }
 
     public void gui(float delta){
@@ -179,48 +178,51 @@ public class GameScreen extends AbstractScreen implements ContactListener{
             botGravity.setRegionHeight(gravity);
 
             Color color = Color.WHITE;
-
             guiSprite.setColor(color.r, color.g, color.b, color.a);
-            guiSprite.draw(
-                topBounce, 50, WINDOW_HEIGHT - 40 - ((16 + bounce) * 4),
-                topBounce.getRegionWidth() * 4, topBounce.getRegionHeight() * 4);
-            guiSprite.draw(
-                botBounce, 50, WINDOW_HEIGHT - 40 - (16 * 4),
-                botBounce.getRegionWidth() * 4, botBounce.getRegionHeight() * 4);
 
-            guiSprite.setColor(color.r, color.g, color.b, color.a);
-            guiSprite.draw(
-                topGrow, 114, WINDOW_HEIGHT - 40 - ((16 + grow) * 4),
-                topGrow.getRegionWidth() * 4, topGrow.getRegionHeight() * 4);
-            guiSprite.draw(
-                botGrow, 114, WINDOW_HEIGHT - 40 - (16 * 4),
-                botGrow.getRegionWidth() * 4, botGrow.getRegionHeight() * 4);
+            if (bounce > 0){
+                guiSprite.draw(
+                    topBounce, 50, WINDOW_HEIGHT - 40 - ((16 - bounce) * 4),
+                    topBounce.getRegionWidth() * 4, topBounce.getRegionHeight() * 4);
+                guiSprite.draw(
+                    botBounce, 50, WINDOW_HEIGHT - 40 - (16 * 4),
+                    botBounce.getRegionWidth() * 4, botBounce.getRegionHeight() * 4);
+            }
+            if (grow > 0){
+                guiSprite.draw(
+                    topGrow, 114, WINDOW_HEIGHT - 40 - ((16 - grow) * 4),
+                    topGrow.getRegionWidth() * 4, topGrow.getRegionHeight() * 4);
+                guiSprite.draw(
+                    botGrow, 114, WINDOW_HEIGHT - 40 - (16 * 4),
+                    botGrow.getRegionWidth() * 4, botGrow.getRegionHeight() * 4);
+            }
 
-            guiSprite.setColor(color.r, color.g, color.b, color.a);
-            guiSprite.draw(
-                topGravity, 178, WINDOW_HEIGHT - 40 - ((16 + gravity) * 4),
-                topGravity.getRegionWidth() * 4, topGravity.getRegionHeight() * 4);
-            guiSprite.draw(
-                botGravity, 178, WINDOW_HEIGHT - 40 - (16 * 4),
-                botGravity.getRegionWidth() * 4, botGravity.getRegionHeight() * 4);
+            if (gravity > 0){
+                guiSprite.draw(
+                    topGravity, 178, WINDOW_HEIGHT - 40 - ((16 - gravity) * 4),
+                    topGravity.getRegionWidth() * 4, topGravity.getRegionHeight() * 4);
+                guiSprite.draw(
+                    botGravity, 178, WINDOW_HEIGHT - 40 - (16 * 4),
+                    botGravity.getRegionWidth() * 4, botGravity.getRegionHeight() * 4);
+            }
         guiSprite.end();
     }
 
     public Upgrade spawnUpgrade(){
-        int spawnChance = spawn.nextInt(4);
+        int spawnChance = spawn.nextInt(2);
         switch (spawnChance){
             case 0: return new Upgrade(game, Type.BOUNCE);
-            case 1: return new Upgrade(game, Type.MAGNET);
-            case 2: return new Upgrade(game, Type.FLY);
-            case 3: return new Upgrade(game, Type.GROW);
-            case 4: return new Upgrade(game, Type.GRAVITY);
+            case 1: return new Upgrade(game, Type.GROW);
+            case 2: return new Upgrade(game, Type.GRAVITY);
+            case 3: return new Upgrade(game, Type.MAGNET);
+            case 4: return new Upgrade(game, Type.FLY);
         }
         return new Upgrade(game, Type.BOUNCE);
     }
-    
+
     public Obstacle spawnObstacle(){
         System.out.println("Spawned obstacle");
-        return new Obstacle(game);  
+        return new Obstacle(game);
     }
 
     @Override

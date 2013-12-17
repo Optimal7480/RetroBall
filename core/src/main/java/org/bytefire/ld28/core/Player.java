@@ -53,7 +53,7 @@ public class Player extends Actor implements CollisionManager{
         bodyDef.position.set(160, 200);
         body = ((GameScreen) game.getScreen()).getWorld().createBody(bodyDef);
         CircleShape circle = new CircleShape();
-        circle.setRadius(5f);
+        circle.setRadius(20f);
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = circle;
         fixtureDef.density = 0.5f;
@@ -84,13 +84,11 @@ public class Player extends Actor implements CollisionManager{
     public void draw (SpriteBatch batch, float parentAlpha) {
         Color color = getColor();
         batch.setColor(color.r, color.g, color.b, color.a * parentAlpha);
-        batch.draw(tex, getX() - (tex.getRegionWidth() / 2), getY() - (tex.getRegionHeight() / 2));
-
-                SpriteHandler s = game.getSpriteHandler();
-        float maxtime = 6f;
-        float time = 2.5f;
-        int height = s.getRegion(Sprite.FLY_OFF).getRegionHeight();
-        int midpoint = Math.round(time / maxtime * height);
+        int width = tex.getRegionWidth();
+        if (bgrow)
+            batch.draw(tex, getX() - (width * 2), getY() - (width * 2), width * 4, width * 4);
+        else
+            batch.draw(tex, getX() - (width /2), getY() - (width /2));
     }
 
     @Override
@@ -98,11 +96,17 @@ public class Player extends Actor implements CollisionManager{
         setX(body.getPosition().x);
         setY(body.getPosition().y);
 
-        if (bounce > 0) fix.setRestitution(2.0f);
-        else fix.setRestitution(0.1f);
+        if (bounce > 0) {
+            fix.setRestitution(2.0f);
+            bbounce = true;
+        }
+        else {
+            bbounce = false;
+            fix.setRestitution(0.1f);
+        }
         if (!bgrow && grow > 0) {
             CircleShape circle = new CircleShape();
-            circle.setRadius(16f);
+            circle.setRadius(20f);
             FixtureDef fixtureDef = new FixtureDef();
             fixtureDef.shape = circle;
             fixtureDef.density = 0.5f;

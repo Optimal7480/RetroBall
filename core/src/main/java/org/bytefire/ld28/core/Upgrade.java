@@ -29,7 +29,7 @@ public class Upgrade extends Actor implements CollisionManager{
     private Type type;
     //private final Body body;
     private Random rand;
-    
+
     public Upgrade(LD28 game, Type type){
         this.game = game;
         this.type = type;
@@ -46,12 +46,12 @@ public class Upgrade extends Actor implements CollisionManager{
                 break;
             default: tex = game.getSpriteHandler().getRegion(Sprite.SIZE_ON);
                 break;
-                
+
         }
         ((AbstractScreen) game.getScreen()).getStage().addActor(this);
         setTouchable(Touchable.enabled);
         rand = new Random();
-        
+
         setX( ((GameScreen) game.getScreen()).getPlayer().getX() + GameScreen.WINDOW_WIDTH);
         setY( ((GameScreen) game.getScreen()).getPlayer().getY() + (rand.nextInt(300) - 100));
     }
@@ -65,13 +65,14 @@ public class Upgrade extends Actor implements CollisionManager{
 
     @Override
     public void act(float delta){
-        if (((GameScreen) game.getScreen()).getPlayer().getPosition().dst(getX(), getY()) < 6){
+        Player player = ((GameScreen) game.getScreen()).getPlayer();
+        if (player.getPosition().dst(getX(), getY()) < ((player.getGrow() > 0) ? 25 : 6)){
             switch (type){
-                case BOUNCE: ((GameScreen) game.getScreen()).getPlayer().setBounce(Player.MAX_BOUNCE);
+                case BOUNCE: player.setBounce(Player.MAX_BOUNCE);
                     break;
-                case GROW: ((GameScreen) game.getScreen()).getPlayer().setGrow(Player.MAX_GROW);
+                case GROW: player.setGrow(Player.MAX_GROW);
                     break;
-                case GRAVITY: ((GameScreen) game.getScreen()).getPlayer().setGravity(Player.MAX_GRAVITY);
+                case GRAVITY: player.setGravity(Player.MAX_GRAVITY);
                     break;
                 default: break;
             }
