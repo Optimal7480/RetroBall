@@ -39,22 +39,22 @@ public class Obstacle extends Actor implements CollisionManager{
         
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.StaticBody;
+        rand = new Random();
+        bodyDef.position.set(((GameScreen) game.getScreen()).getPlayer().getX() + GameScreen.WINDOW_WIDTH, ((GameScreen) game.getScreen()).getPlayer().getY() + (rand.nextInt(150)));
         body = ((GameScreen) game.getScreen()).getWorld().createBody(bodyDef);
-        EdgeShape polygonShape = new EdgeShape();
+        PolygonShape polygonShape = new PolygonShape();
         FixtureDef fixtureDef = new FixtureDef();
+        polygonShape.//set(new Vector2(getX(), getY()), new Vector2(getX(), getY() + 22));
+            set(new Vector2[]{ new Vector2(getX()-2, getY()-11),
+            new Vector2(getX() + 2, getY()-11),
+            new Vector2(getX() + 2, getY() + 11),
+            new Vector2(getX() - 2, getY() + 11)});
         fixtureDef.shape = polygonShape;
         fixtureDef.density = 0.5f;
         fixtureDef.friction = 1.0f;
         fixtureDef.restitution = 2.0f;
         body.createFixture(fixtureDef);
-        rand = new Random();
-        setX( ((GameScreen) game.getScreen()).getPlayer().getX() + GameScreen.WINDOW_WIDTH);
-        setY( ((GameScreen) game.getScreen()).getPlayer().getY() + (rand.nextInt(150)));
-        polygonShape.set(new Vector2(getX(), getY()), new Vector2(getX(), getY() + 22));
-//                set(new Vector2[]{ new Vector2(getX(), getY()),
-//            new Vector2(getX() +5, getY()),
-//            new Vector2(getX() + 5, getY() + 22),
-//            new Vector2(getX(), getY() + 22)});
+        
         body.setUserData(this);
         
         setTouchable(Touchable.enabled);
@@ -64,15 +64,17 @@ public class Obstacle extends Actor implements CollisionManager{
         polygonShape.dispose();
     }
     
-//    @Override
-//    public void draw (SpriteBatch batch, float parentAlpha) {
-//        Color color = getColor();
-//        batch.setColor(color.r, color.g, color.b, color.a * parentAlpha);
-//        batch.draw(tex, getX() - (tex.getRegionWidth() / 2), getY() - (tex.getRegionHeight() / 2));
-//    }
+    @Override
+    public void draw (SpriteBatch batch, float parentAlpha) {
+        Color color = ((GameScreen) game.getScreen()).getGlobalColor();
+        batch.setColor(color.r, color.g, color.b, color.a * parentAlpha);
+        batch.draw(tex, getX() - (tex.getRegionWidth() / 2), getY() - (tex.getRegionHeight() / 2));
+    }
 
     @Override
     public void act(float delta){
+        setX(body.getPosition().x);
+        setY(body.getPosition().y);
         }
 
     @Override

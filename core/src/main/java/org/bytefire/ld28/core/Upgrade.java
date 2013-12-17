@@ -58,7 +58,7 @@ public class Upgrade extends Actor implements CollisionManager{
 
     @Override
     public void draw (SpriteBatch batch, float parentAlpha) {
-        Color color = getColor();
+        Color color = ((GameScreen) game.getScreen()).getGlobalColor();
         batch.setColor(color.r, color.g, color.b, color.a * parentAlpha);
         batch.draw(tex, getX() - (tex.getRegionWidth() / 2), getY() - (tex.getRegionHeight() / 2));
     }

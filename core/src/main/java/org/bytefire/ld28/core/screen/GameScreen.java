@@ -38,7 +38,7 @@ public class GameScreen extends AbstractScreen implements ContactListener{
     private static final int BOX_SCALE = 8;
     public static final float PLATFORM_CAP = 400;
 
-    private static final boolean DEBUG_RENDER = true;
+    private static final boolean DEBUG_RENDER = false;
 
     private ShapeRenderer guiShape;
     private SpriteBatch guiSprite;
@@ -57,6 +57,7 @@ public class GameScreen extends AbstractScreen implements ContactListener{
     private Player player;
 
     private float playerX;
+    private float playerY;
     private float xdelta;
 
     public GameScreen(LD28 main){
@@ -106,7 +107,9 @@ public class GameScreen extends AbstractScreen implements ContactListener{
             delta = 0;
         }
         playerX = player.getPosition().x;
-
+        playerY = player.getPosition().y;
+        globalColor = new Color((WINDOW_HEIGHT/4) - (player.getY() / (WINDOW_HEIGHT / 4)), player.getY()/(WINDOW_HEIGHT / 4), 0f, 1f);
+        
         physics(delta);
     }
 
@@ -263,5 +266,9 @@ public class GameScreen extends AbstractScreen implements ContactListener{
 
     public Player getPlayer() {
         return player;
+    }
+
+    public Color getGlobalColor() {
+        return globalColor;
     }
 }

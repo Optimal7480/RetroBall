@@ -57,7 +57,7 @@ public class Platform extends Actor implements CollisionManager{
 
     @Override
     public void draw (SpriteBatch batch, float parentAlpha) {
-        Color color = getColor();
+        Color color = ((GameScreen) game.getScreen()).getGlobalColor();
         batch.setColor(color.r, color.g, color.b, color.a * parentAlpha);
         for (int i = 0; i < chain.size() - 1; i++){
             Vector2 start = chain.get(i).cpy();
